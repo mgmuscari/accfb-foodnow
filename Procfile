@@ -1,1 +1,2 @@
-web: gunicorn foodnow:app
+web: gunicorn foodnow.app:app
+

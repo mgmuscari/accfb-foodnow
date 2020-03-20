@@ -4,7 +4,7 @@
   "image": "heroku/python",
   "repository": "https://github.com/mgmuscari/accfb-foodnow",
   "keywords": ["python", "flask", "twilio" ],
-  "addons": [ "heroku-postgresql" ],
+  "addons": [ "heroku-redis" ],
   "env": {
   },
   "environments": {

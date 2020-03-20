@@ -1,3 +1,2 @@
-django
+flask-restful
 gunicorn
-django-heroku

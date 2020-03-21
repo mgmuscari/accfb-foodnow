@@ -60,8 +60,8 @@ if __name__ == '__main__':
 
             insert_query = 'insert into accfb.distribution_sites (id, name, address, city, zip, open_date, close_date, location) ' + \
                            'values (%(id)s, %(name)s, %(address)s, %(city)s, %(zip)s, %(open_date)s, %(close_date)s, ' + \
-                           'st_makepoint(%(lng)s, %(lat)s)) on conflict do update set name=%(name)s, address=%(address)s, ' + \
-                           'city=%(city)s, zip=%(zip)s, open_date=%(open_date)s, close_date=%(close_date)s, location=st_makepoint(%(lng)s, %(lat)s))'
+                           'st_makepoint(%(lng)s, %(lat)s)) on conflict (id) do update set name=%(name)s, address=%(address)s, ' + \
+                           'city=%(city)s, zip=%(zip)s, open_date=%(open_date)s, close_date=%(close_date)s, location=st_makepoint(%(lng)s, %(lat)s)'
             update = {
                 'id': site.id,
                 'name': site.name,

@@ -35,28 +35,46 @@ if __name__ == '__main__':
 
             site = DistributionSite(**data)
 
-            print(site)
-
             cursor = postgres.cursor()
 
-            cursor.execute('select * from accfb.distribution_sites where id=%(id)s', {'id': site.id})
+            cursor.execute('select *, st_x(location::geometry) as lng, st_y(location::geometry) as lat from accfb.distribution_sites where id=%(id)s', {'id': site.id})
 
             result = cursor.fetchone()
+            address_changed = False
 
-            if not result:
+            if result is not None:
+                print("Found an existing row for {}".format(site.name))
+                columns = [col.name for col in cursor.description]
+                data = dict(zip(columns, result))
+                old_address = '{}, {}, {} {}'.format(data['address'], data['city'], 'CA', data['zip'])
+                new_address = '{}, {}, {} {}'.format(site.address, site.city, 'CA', site.zip)
+                site.set_location(data['lat'], data['lng'])
+                address_changed = old_address != new_address
+                if address_changed:
+                    print("Address of {} has changed".format(site.name))
+
+            if address_changed or result is None:
                 geocode = gmaps.geocode('{}, {}, {} {}'.format(site.address, site.city, 'CA', site.zip))
                 location = geocode[0].get('geometry').get('location')
                 site.set_location(location.get('lat'), location.get('lng'))
 
-                insert_query = 'insert into accfb.distribution_sites (id, name, address, city, zip, location) values (%(id)s, %(name)s, %(address)s, %(city)s, %(zip)s, st_makepoint(%(lng)s, %(lat)s))'
-                update = {'id': site.id,
-                          'name': site.name,
-                          'address': site.address,
-                          'city': site.city,
-                          'zip': site.zip,
-                          'lng': site.longitude,
-                          'lat': site.latitude}
-                cursor.execute(insert_query, update)
+            insert_query = 'insert into accfb.distribution_sites (id, name, address, city, zip, open_date, close_date, location) ' + \
+                           'values (%(id)s, %(name)s, %(address)s, %(city)s, %(zip)s, %(open_date)s, %(close_date)s, ' + \
+                           'st_makepoint(%(lng)s, %(lat)s)) on conflict do update set name=%(name)s, address=%(address)s, ' + \
+                           'city=%(city)s, zip=%(zip)s, open_date=%(open_date)s, close_date=%(close_date)s, location=st_makepoint(%(lng)s, %(lat)s))'
+            update = {
+                'id': site.id,
+                'name': site.name,
+                'address': site.address,
+                'city': site.city,
+                'zip': site.zip,
+                'open_date': site.open_date,
+                'close_date': site.close_date,
+                'lng': site.longitude,
+                'lat': site.latitude
+            }
+
+            cursor.execute(insert_query, update)
 
             cursor.execute('delete from accfb.hours where site_id=%(site_id)s', {'site_id': site.id})
 
@@ -69,3 +87,5 @@ if __name__ == '__main__':
 
         except Exception as e:
             traceback.print_exc(file=sys.stdout)
+
+

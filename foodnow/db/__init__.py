@@ -1,18 +1,15 @@
-import redis
+import psycopg2
 import os
 from urllib import parse
 
 
-def get_redis_client():
-    redis_url = os.environ.get("REDIS_URL")
-    parsed = parse.urlparse(redis_url)
-    split = parsed.netloc.split('@')
-    if len(split) == 2:
-        auth = split[0]
-        netloc = split[1]
-        passwd = auth.split(':')[1]
-        (host, port) = netloc.split(':')
-    elif len(split) == 1:
-        (host, port) = split[0].split(':')
-        passwd = None
-    r = redis.Redis(host, port, password=passwd)
+def get_postgres_client():
+    database_url = os.environ.get("DATABASE_URL")
+    parsed = parse.urlparse(database_url)
+    split = str(parsed.netloc).split('@')
+    auth = split[0]
+    netloc = split[1]
+    (user, passwd) = auth.split(':')
+    (host, port) = netloc.split(':')
+    return psycopg2.connect(host=host, port=port, user=user, password=passwd, database='foodnow')
+

@@ -1,0 +1,167 @@
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 12.2
+-- Dumped by pg_dump version 12.2
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- Name: accfb; Type: SCHEMA; Schema: -; Owner: mmuscari
+--
+
+CREATE SCHEMA accfb;
+
+
+ALTER SCHEMA accfb OWNER TO mmuscari;
+
+--
+-- Name: postgis; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS postgis WITH SCHEMA public;
+
+
+--
+-- Name: EXTENSION postgis; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION postgis IS 'PostGIS geometry, geography, and raster spatial types and functions';
+
+
+--
+-- Name: weekday; Type: TYPE; Schema: public; Owner: mmuscari
+--
+
+CREATE TYPE public.weekday AS ENUM (
+    'Sunday',
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday'
+);
+
+
+ALTER TYPE public.weekday OWNER TO mmuscari;
+
+SET default_tablespace = '';
+
+SET default_table_access_method = heap;
+
+--
+-- Name: distribution_sites; Type: TABLE; Schema: accfb; Owner: mmuscari
+--
+
+CREATE TABLE accfb.distribution_sites (
+    id integer NOT NULL,
+    name character varying(128),
+    address character varying(128),
+    city character varying(64),
+    zip character varying(10),
+    location public.geography(Point,4326),
+    open_date date,
+    close_date date
+);
+
+
+ALTER TABLE accfb.distribution_sites OWNER TO mmuscari;
+
+--
+-- Name: hours; Type: TABLE; Schema: accfb; Owner: mmuscari
+--
+
+CREATE TABLE accfb.hours (
+    site_id integer NOT NULL,
+    day public.weekday NOT NULL,
+    open_time time without time zone,
+    close_time time without time zone
+);
+
+
+ALTER TABLE accfb.hours OWNER TO mmuscari;
+
+--
+-- Data for Name: distribution_sites; Type: TABLE DATA; Schema: accfb; Owner: mmuscari
+--
+
+COPY accfb.distribution_sites (id, name, address, city, zip, location, open_date, close_date) FROM stdin;
+\.
+
+
+--
+-- Data for Name: hours; Type: TABLE DATA; Schema: accfb; Owner: mmuscari
+--
+
+COPY accfb.hours (site_id, day, open_time, close_time) FROM stdin;
+\.
+
+
+--
+-- Data for Name: spatial_ref_sys; Type: TABLE DATA; Schema: public; Owner: mmuscari
+--
+
+COPY public.spatial_ref_sys (srid, auth_name, auth_srid, srtext, proj4text) FROM stdin;
+\.
+
+
+--
+-- Name: distribution_sites distribution_sites_pkey; Type: CONSTRAINT; Schema: accfb; Owner: mmuscari
+--
+
+ALTER TABLE ONLY accfb.distribution_sites
+    ADD CONSTRAINT distribution_sites_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: hours hours_pkey; Type: CONSTRAINT; Schema: accfb; Owner: mmuscari
+--
+
+ALTER TABLE ONLY accfb.hours
+    ADD CONSTRAINT hours_pkey PRIMARY KEY (site_id, day);
+
+
+--
+-- Name: hours hours_site_id_fkey; Type: FK CONSTRAINT; Schema: accfb; Owner: mmuscari
+--
+
+ALTER TABLE ONLY accfb.hours
+    ADD CONSTRAINT hours_site_id_fkey FOREIGN KEY (site_id) REFERENCES accfb.distribution_sites(id);
+
+
+--
+-- Name: SCHEMA accfb; Type: ACL; Schema: -; Owner: mmuscari
+--
+
+GRANT USAGE ON SCHEMA accfb TO foodbank;
+
+
+--
+-- Name: TABLE distribution_sites; Type: ACL; Schema: accfb; Owner: mmuscari
+--
+
+GRANT SELECT,INSERT,DELETE,TRIGGER,UPDATE ON TABLE accfb.distribution_sites TO foodbank;
+
+
+--
+-- Name: TABLE hours; Type: ACL; Schema: accfb; Owner: mmuscari
+--
+
+GRANT SELECT,INSERT,DELETE,TRIGGER,UPDATE ON TABLE accfb.hours TO foodbank;
+
+
+--
+-- PostgreSQL database dump complete
+--
+

@@ -204,6 +204,10 @@
                   "question": "What city do you live in?",
                   "name": "city",
                   "type": "Twilio.CITY"
+                },
+                {
+                  "question": "What is the nearest address?",
+                  "name": "address"
                 }
               ],
               "on_complete": {
@@ -213,19 +217,6 @@
           }
         ]
       }
-    },
-    {
-      "uniqueName": "food_in_city",
-      "friendlyName": "Find food in city",
-      "actions": {
-        "actions": [
-          {
-            "redirect": "https://foodbank-8297-dev.twil.io/get-address"
-          }
-        ]
-      },
-      "fields": [],
-      "samples": []
     },
     {
       "uniqueName": "greeting",

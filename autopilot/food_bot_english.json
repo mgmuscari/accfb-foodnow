@@ -7,7 +7,7 @@
       "assistant_initiation": "task://greeting",
       "fallback": "task://fallback",
       "collect": {
-        "validate_on_failure": "task://collect_fallback"
+        "validate_on_failure": "task://error_condition"
       }
     }
   },
@@ -36,14 +36,14 @@
         }
       },
       "voice": {
-        "say_voice": "Polly.Matthew"
+        "say_voice": "Polly.Salli"
       }
     }
   },
   "fieldTypes": [],
   "tasks": [
     {
-      "uniqueName": "collect_fallback",
+      "uniqueName": "error_condition",
       "actions": {
         "actions": [
           {
@@ -204,7 +204,24 @@
                   "question": "What city do you live in?",
                   "name": "city",
                   "type": "Twilio.CITY"
-                },
+                }
+              ],
+              "on_complete": {
+                "redirect": "https://accfb-foodnow-stage.herokuapp.com/validate-city"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "uniqueName": "collect_address",
+      "actions": {
+        "actions": [
+          {
+            "collect": {
+              "name": "user_location",
+              "questions": [
                 {
                   "question": "What is the nearest address?",
                   "name": "address"
@@ -216,7 +233,9 @@
             }
           }
         ]
-      }
+      },
+      "fields": [],
+      "samples": []
     },
     {
       "uniqueName": "greeting",

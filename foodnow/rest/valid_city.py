@@ -34,6 +34,8 @@ class ValidCityResource(Resource):
             except Exception as e:
                 logging.exception("An error occurred validating the user's city")
                 return make_response(json.dumps(Responses.error_response()), 200)
+        else:
+            make_response("Request not validated", 401)
 
     @staticmethod
     def valid_city(pgclient, city):

@@ -16,6 +16,7 @@ class FindPantryResource(Resource):
         url = request.url
         content = request.form
         if validator.validate(url, content, twilio_signature):
+            pgclient = get_postgres_client()
             memory = json.loads(content.get('Memory'))
             location = memory.get('twilio').get('collected_data').get('user_location').get('answers')
             city = location.get('city').get('answer')
@@ -24,7 +25,11 @@ class FindPantryResource(Resource):
             gmaps = googlemaps.Client(key=google_api_key)
             geocode = gmaps.geocode(formatted_address)
             geolocation = geocode[0].get('geometry').get('location')
-            print(geolocation)
+            select = 'select name, address, city from accfb.distribution_sites order by st_distance(st_point(%(lng)s, %(lat)s), location) asc limit 1'
+            cursor = pgclient.cursor()
+            cursor.execute(select, geolocation)
+            result = cursor.fetchone()
+            print(result)
         else:
             abort(401, 'Request not validated')
 

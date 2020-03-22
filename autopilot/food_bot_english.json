@@ -156,6 +156,7 @@
     {
       "uniqueName": "need_food",
       "friendlyName": "Need Food Response",
+      "fields": [],
       "samples": [
         {
           "language": "en-US",
@@ -206,7 +207,7 @@
                 }
               ],
               "on_complete": {
-                "redirect": "https://"
+                "redirect": "https://accfb-foodnow-stage.herokuapp.com/find-pantry"
               }
             }
           }
@@ -223,6 +224,7 @@
           }
         ]
       },
+      "fields": [],
       "samples": []
     },
     {

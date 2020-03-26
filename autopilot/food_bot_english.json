@@ -242,10 +242,10 @@
       "actions": {
         "actions": [
           {
-            "say": "Hello, what can I help you with today?"
+            "say": "Welcome to the Alameda County Community Food Bank's automated food assistance service. This service can help you find a food distribution site near you within Alameda county."
           },
           {
-            "listen": true
+            "redirect": "task://need_food"
           }
         ]
       },

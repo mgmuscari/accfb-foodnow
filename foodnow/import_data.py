@@ -35,6 +35,8 @@ if __name__ == '__main__':
 
             site = DistributionSite(**data)
 
+            site.set_schedules_from_spreadsheet(**data)
+
             cursor = postgres.cursor()
 
             cursor.execute('select *, st_x(location::geometry) as lng, st_y(location::geometry) as lat from accfb.distribution_sites where id=%(id)s', {'id': site.id})
@@ -78,9 +80,10 @@ if __name__ == '__main__':
 
             cursor.execute('delete from accfb.hours where site_id=%(site_id)s', {'site_id': site.id})
 
-            for day in site.days_of_week:
+            for (day, schedule) in site.schedules.items():
+
                 insert_query = 'insert into accfb.hours (site_id, day, open_time, close_time) values (%(site_id)s, %(day)s, %(open)s, %(close)s)'
-                update = {'site_id': site.id, 'day': day, 'open': site.open_time, 'close': site.close_time}
+                update = {'site_id': site.id, 'day': schedule.day_of_week, 'open': schedule.open_time, 'close': schedule.close_time}
                 cursor.execute(insert_query, update)
 
             postgres.commit()

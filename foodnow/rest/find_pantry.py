@@ -16,7 +16,7 @@ import pytz
 class FindPantryResource(Resource):
 
     @staticmethod
-    def meters_to_miles(meters):
+    def meters_to_miles(meters, language):
         distance = (meters / 1000.0) * 0.621371
         miles = math.floor(distance)
         miles_fraction = distance - miles
@@ -41,13 +41,13 @@ class FindPantryResource(Resource):
         return str(int(miles)) + fraction_text + ' ' + unit
 
     @staticmethod
-    def site_response(site_summary, date):
+    def site_response(site_summary, date, language):
         site = site_summary['site']
         day_of_week = date.strftime('%A')
         if day_of_week not in site.schedules.keys():
             raise Exception('Site is not open on this day')
         return {
-            'distance': FindPantryResource.meters_to_miles(site_summary['distance']),
+            'distance': FindPantryResource.meters_to_miles(site_summary['distance'], language),
             'site_name': site.name,
             'site_address': site.address,
             'site_city': site.city,
@@ -62,10 +62,12 @@ class FindPantryResource(Resource):
             with get_postgres_client() as pgclient:
                 city = request.args.get("city")
                 address = request.args.get("address")
+                language = request.args.get("language", "en_US")
                 try:
                     formatted_address = '{}, {}, {}'.format(address, city, 'CA')
                     gmaps = googlemaps.Client(key=google_api_key)
                     geocode = gmaps.geocode(formatted_address)
+                    logging.debug(str(geocode))
                     geolocation = geocode[0].get('geometry').get('location')
                 except (ApiError, Timeout, TransportError) as e:
                     logging.exception("Encountered an exception while geocoding the user's address")
@@ -81,9 +83,9 @@ class FindPantryResource(Resource):
                 sites_tomorrow = dao.find_open_sites_on_day(geolocation['lat'], geolocation['lng'], tomorrow)
                 sites_day_after = dao.find_open_sites_on_day(geolocation['lat'], geolocation['lng'], day_after)
 
-                site_responses_today = [FindPantryResource.site_response(site_summary, today) for site_summary in sites_today.values()]
-                site_responses_tomorrow = [FindPantryResource.site_response(site_summary, tomorrow) for site_summary in sites_tomorrow.values()]
-                site_responses_day_after = [FindPantryResource.site_response(site_summary, day_after) for site_summary in sites_day_after.values()]
+                site_responses_today = [FindPantryResource.site_response(site_summary, today, language) for site_summary in sites_today.values()]
+                site_responses_tomorrow = [FindPantryResource.site_response(site_summary, tomorrow, language) for site_summary in sites_tomorrow.values()]
+                site_responses_day_after = [FindPantryResource.site_response(site_summary, day_after, language) for site_summary in sites_day_after.values()]
 
                 site_responses = {
                     "sites": site_responses_today + site_responses_tomorrow + site_responses_day_after

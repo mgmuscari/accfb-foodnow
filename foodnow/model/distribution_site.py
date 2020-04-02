@@ -21,17 +21,7 @@ class DistributionSite(object):
             self.close_date = datetime.strptime(kwargs.get("CloseDate"), '%Y-%m-%d')
         self.latitude = kwargs.get("Latitude")
         self.longitude = kwargs.get("Longitude")
-
-    def set_schedules_from_database(self, schedule_rows):
-        self.schedules = {row.get('day'): Schedule(day_of_week=row.get('day'),
-                                   open_time=row.get('open_time'),
-                                   close_time=row.get('close_time')) for row in schedule_rows}
-
-    def set_schedules_from_spreadsheet(self, **kwargs):
-        days_of_week = [day.strip() for day in kwargs.get('DayOfWeek', '').split(',')]
-        open_time = datetime.strptime(kwargs.get('StartTime'), '%I:%M %p')
-        close_time = datetime.strptime(kwargs.get('EndTime'), '%I:%M %p')
-        self.schedules = {day: Schedule(day_of_week=day, open_time=open_time, close_time=close_time) for day in days_of_week}
+        self.distance = None
 
     def key(self):
         return "distribution_site:{}".format(self.id)

@@ -1,18 +1,19 @@
 from flask_restful import Resource
-from flask import request, abort, make_response
+from flask import request, app, make_response
 from flask import jsonify
-from foodnow.db.distribution_site_dao import DistributionSiteDao
+from foodnow.db.postgres.distribution_site_dao import PostgresDistributionSiteDao
 from foodnow.model.schedule import Schedule
 import os
 import googlemaps
 from googlemaps.exceptions import Timeout, TransportError, ApiError
 from foodnow.db import get_postgres_client
-import logging
 import datetime
 import math
 from fractions import Fraction
 import pytz
+import logging
 
+log = logging.getLogger(__name__)
 
 class FindPantryResource(Resource):
 
@@ -53,11 +54,10 @@ class FindPantryResource(Resource):
                 fraction_text = ' and ' + fraction_text
             else:
                 fraction_text = ' y ' + fraction_text
-        return str(int(unit)) + fraction_text + ' ' + unit
+        return str(int(unit_distance)) + fraction_text + ' ' + unit
 
     @staticmethod
-    def site_response(site_summary, date, language):
-        site = site_summary['site']
+    def site_response(site, date, language):
         day_of_week = date.strftime('%A')
         display_day = day_of_week
         if language == "es_US":
@@ -65,7 +65,8 @@ class FindPantryResource(Resource):
         if day_of_week not in site.schedules.keys():
             raise Exception('Site is not open on this day')
         return {
-            'distance': FindPantryResource.readable_distance(site_summary['distance'], language),
+            'site_id': site.id,
+            'distance': FindPantryResource.readable_distance(site.distance, language),
             'site_name': site.name,
             'site_address': site.address,
             'site_city': site.city,
@@ -76,8 +77,9 @@ class FindPantryResource(Resource):
 
     def get(self):
         google_api_key = os.environ.get("GOOGLE_API_TOKEN")
+        pgclient = get_postgres_client()
         try:
-            with get_postgres_client() as pgclient:
+            with pgclient:
                 city = request.args.get("city")
                 address = request.args.get("address")
                 language = request.args.get("language", "en_US")
@@ -85,13 +87,13 @@ class FindPantryResource(Resource):
                     formatted_address = '{}, {}, {}'.format(address, city, 'CA')
                     gmaps = googlemaps.Client(key=google_api_key)
                     geocode = gmaps.geocode(formatted_address)
-                    logging.debug(str(geocode))
+                    log.debug(str(geocode))
                     geolocation = geocode[0].get('geometry').get('location')
                 except (ApiError, Timeout, TransportError) as e:
-                    logging.exception("Encountered an exception while geocoding the user's address")
+                    log.exception("Encountered an exception while geocoding the user's address")
                     return make_response("An error occurred", 500)
 
-                dao = DistributionSiteDao(pgclient)
+                dao = PostgresDistributionSiteDao(pgclient)
 
                 today = datetime.datetime.now(tz=pytz.timezone("America/Los_Angeles")).date()
                 tomorrow = today + datetime.timedelta(days=1)
@@ -101,21 +103,25 @@ class FindPantryResource(Resource):
                 sites_tomorrow = dao.find_open_sites_on_day(geolocation['lat'], geolocation['lng'], tomorrow)
                 sites_day_after = dao.find_open_sites_on_day(geolocation['lat'], geolocation['lng'], day_after)
 
-                site_responses_today = [FindPantryResource.site_response(site_summary, today, language) for site_summary in sites_today.values()]
-                site_responses_tomorrow = [FindPantryResource.site_response(site_summary, tomorrow, language) for site_summary in sites_tomorrow.values()]
-                site_responses_day_after = [FindPantryResource.site_response(site_summary, day_after, language) for site_summary in sites_day_after.values()]
+                site_responses_today = [FindPantryResource.site_response(site_summary, today, language) for site_summary in sites_today]
+                site_responses_tomorrow = [FindPantryResource.site_response(site_summary, tomorrow, language) for site_summary in sites_tomorrow]
+                site_responses_day_after = [FindPantryResource.site_response(site_summary, day_after, language) for site_summary in sites_day_after]
 
                 site_responses = {
                     "sites": site_responses_today + site_responses_tomorrow + site_responses_day_after
                 }
+
+
 
                 if len(site_responses) > 0:
                     return jsonify(site_responses)
                 else:
                     return make_response("No sites were found", 404)
         except Exception as e:
-            logging.exception("Encountered an exception while finding a pantry")
+            log.exception("Encountered an exception while finding a pantry")
             return make_response("An error occurred", 500)
+        finally:
+            pgclient.close()
 
 
 

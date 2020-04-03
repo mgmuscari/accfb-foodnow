@@ -93,15 +93,14 @@ class FindPantryResource(Resource):
                     log.exception("Encountered an exception while geocoding the user's address")
                     return make_response("An error occurred", 500)
 
-                dao = PostgresDistributionSiteDao(pgclient)
-
+                distribution_site_dao = PostgresDistributionSiteDao(pgclient)
                 today = datetime.datetime.now(tz=pytz.timezone("America/Los_Angeles")).date()
                 tomorrow = today + datetime.timedelta(days=1)
                 day_after = today + datetime.timedelta(days=2)
 
-                sites_today = dao.find_open_sites_now(geolocation['lat'], geolocation['lng'])
-                sites_tomorrow = dao.find_open_sites_on_day(geolocation['lat'], geolocation['lng'], tomorrow)
-                sites_day_after = dao.find_open_sites_on_day(geolocation['lat'], geolocation['lng'], day_after)
+                sites_today = distribution_site_dao.find_open_sites_now(geolocation['lat'], geolocation['lng'])
+                sites_tomorrow = distribution_site_dao.find_open_sites_on_day(geolocation['lat'], geolocation['lng'], tomorrow)
+                sites_day_after = distribution_site_dao.find_open_sites_on_day(geolocation['lat'], geolocation['lng'], day_after)
 
                 site_responses_today = [FindPantryResource.site_response(site_summary, today, language) for site_summary in sites_today]
                 site_responses_tomorrow = [FindPantryResource.site_response(site_summary, tomorrow, language) for site_summary in sites_tomorrow]
@@ -110,8 +109,6 @@ class FindPantryResource(Resource):
                 site_responses = {
                     "sites": site_responses_today + site_responses_tomorrow + site_responses_day_after
                 }
-
-
 
                 if len(site_responses) > 0:
                     return jsonify(site_responses)

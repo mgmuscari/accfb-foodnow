@@ -61,6 +61,40 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
+-- Name: cities; Type: TABLE; Schema: accfb; Owner: mmuscari
+--
+
+CREATE TABLE accfb.cities (
+    id integer NOT NULL,
+    name character varying(64)
+);
+
+
+ALTER TABLE accfb.cities OWNER TO mmuscari;
+
+--
+-- Name: cities_id_seq; Type: SEQUENCE; Schema: accfb; Owner: mmuscari
+--
+
+CREATE SEQUENCE accfb.cities_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE accfb.cities_id_seq OWNER TO mmuscari;
+
+--
+-- Name: cities_id_seq; Type: SEQUENCE OWNED BY; Schema: accfb; Owner: mmuscari
+--
+
+ALTER SEQUENCE accfb.cities_id_seq OWNED BY accfb.cities.id;
+
+
+--
 -- Name: distribution_sites; Type: TABLE; Schema: accfb; Owner: mmuscari
 --
 
@@ -93,10 +127,107 @@ CREATE TABLE accfb.hours (
 ALTER TABLE accfb.hours OWNER TO mmuscari;
 
 --
+-- Name: referrals; Type: TABLE; Schema: accfb; Owner: mmuscari
+--
+
+CREATE TABLE accfb.referrals (
+    site_id integer NOT NULL,
+    referral_date date NOT NULL,
+    referrals integer
+);
+
+
+ALTER TABLE accfb.referrals OWNER TO mmuscari;
+
+--
+-- Name: cities id; Type: DEFAULT; Schema: accfb; Owner: mmuscari
+--
+
+ALTER TABLE ONLY accfb.cities ALTER COLUMN id SET DEFAULT nextval('accfb.cities_id_seq'::regclass);
+
+
+--
+-- Data for Name: cities; Type: TABLE DATA; Schema: accfb; Owner: mmuscari
+--
+
+COPY accfb.cities (id, name) FROM stdin;
+1	Berkeley
+2	Albany
+3	Oakland
+4	Alameda
+5	San Leandro
+6	Hayward
+7	San Lorenzo
+8	Castro Valley
+9	Union City
+11	Newark
+12	Livermore
+13	Dublin
+14	Pleasanton
+15	Sonol
+16	Emeryville
+17	Fremont
+18	Piedmont
+19	Ashland
+20	Cherryland
+21	Fairview
+\.
+
+
+--
 -- Data for Name: distribution_sites; Type: TABLE DATA; Schema: accfb; Owner: mmuscari
 --
 
 COPY accfb.distribution_sites (id, name, address, city, zip, location, open_date, close_date) FROM stdin;
+1	Albany High School Cafeteria	603 Key route Blvd.	Albany	94706	0101000020E610000000321933AE925EC0891B0126BAF24240	2020-03-16	2020-04-03
+2	Berkeley Arts Magnet Elementary	2015 Virginia St.	Berkeley	94709	0101000020E61000000DCA8F534F915EC06A2794CF3CF04240	2020-03-23	2020-03-27
+3	Rosa Parks Elementary	920 Allston Way	Berkeley	94710	0101000020E61000006D82B927D9925EC0BEEF8403C6EE4240	2020-03-23	2020-03-27
+4	Longfellow Middle School	1500 Derby St.	Berkeley	94703	0101000020E61000001F2114A5CE915EC07A50F5D0E3ED4240	2020-03-23	2020-03-27
+5	Willard Middle School	2425 Stuart St.	Berkeley	94705	0101000020E610000083E794368B905EC056DA3DD411EE4240	2020-03-23	2020-03-27
+6	Berkeley High School	1980 Allston Way	Berkeley	94704	0101000020E6100000418F62CA51915EC0C315AB611AEF4240	2020-03-23	2020-03-27
+7	Martin Luther King Jr. Middle School	1781 Rose St.	Berkeley	94703	0101000020E6100000D0888851C6915EC09F5D19AFD4F04240	2020-03-23	2020-03-27
+8	Creekside Middle School Cafeteria	19722 Center St.	Castro Valley	94546	0101000020E6100000ACF24E4FE9835EC04165FCFB8CD94240	2020-03-18	2020-03-31
+9	Cherryland Elementary	456 Laurel Ave.	Hayward	94541	0101000020E6100000EBB3B92011865EC04E78AE940AD64240	2020-03-17	2020-03-27
+10	Fairview Elementary	23515 Maud Ave.	Hayward	94541	0101000020E61000007C760A0360835EC0754A51781AD74240	2020-03-17	2020-03-27
+11	Longwood Elementary	850 Longwood Ave.	Hayward	94541	0101000020E61000008A20CEC309875EC00E15E3FC4DD44240	2020-03-17	2020-03-27
+12	Park Elementary	411 Larchmont St.	Hayward	94544	0101000020E610000046CEC29EF6855EC0E4F32FEEABD34240	2020-03-17	2020-03-27
+13	Schafer Park Elementary	26268 Flamingo Ave.	Hayward	94544	0101000020E610000057DD34C783855EC04DA48F543AD24240	2020-03-17	2020-03-27
+14	Treeview Elementary	30565 Treeview St.	Hayward	94544	0101000020E61000004FCB0F5C65825EC075BC13FDEBCF4240	2020-03-17	2020-03-27
+15	Tyrrell Elementary	27000 Tyrrell Ave.	Hayward	94544	0101000020E61000002F7DF9AED2845EC02F88FEBFA0D14240	2020-03-17	2020-03-27
+16	Hayward High School	1633 East Ave.	Hayward	94541	0101000020E6100000930035B56C845EC0603C8386FED54240	2020-03-17	2020-03-27
+17	Tennyson High School	27035 Whitman St.	Hayward	94544	0101000020E610000085798F334D845EC0C7629B5434D24240	2020-03-17	2020-03-27
+18	Mt. Eden High School	2300 Panama St.	Hayward	94545	0101000020E6100000773D87E8C6855EC097D97B4CFFCF4240	2020-03-17	2020-03-27
+19	East Avenue Middle School	3951 East Ave.	Livermore	94550	0101000020E6100000E19E42090E705EC0F958B043EBD64240	2020-03-17	2020-04-13
+20	Junction Avenue K-8	298 Junction Ave.	Livermore	94551	0101000020E6100000E8F4BC1B0B715EC0BFA8DDAF02D84240	2020-03-17	2020-04-13
+21	Marilyn Ave Elementary	800 Marilyn Ave.	Livermore	94551	0101000020E610000013A16C254F725EC0D2996A1CA0D74240	2020-03-17	2020-04-13
+22	Alvarado Elementary	31100 Fredi St.	New Haven	94587	0101000020E6100000B2DAFCBFEA845EC00AF4893C49CC4240	2020-03-17	2020-03-27
+23	Eastin Elementary	34901 Eastin Dr.	New Haven	94587	0101000020E61000002C17E071C0845EC09BDC9497A1C84240	2020-03-17	2020-03-27
+24	Guy Emanuele Elementary	100 Decoto Rd.	New Haven	94587	0101000020E610000049C1AE8108815EC0B0726891EDCC4240	2020-03-17	2020-03-27
+25	Hillview Crest Elementary	31410 Wheelon Ave.	New Haven	94544	0101000020E6100000CF8D44C33D825EC08410902FA1CE4240	2020-03-17	2020-03-27
+26	Kitayama Elementary	1959 Sunsprite Dr.	New Haven	94587	0101000020E61000001E8D43FD2E835EC0884B8E3BA5CC4240	2020-03-17	2020-03-27
+27	Cesar Chavez Middle School	2801 Hop Ranch Rd.	New Haven	94587	0101000020E6100000DCED1FB017835EC0AEE86A86AFCB4240	2020-03-17	2020-03-27
+28	James Logan High School	1800 H St.	New Haven	94587	0101000020E6100000938E72309B815EC03D3F3157ABCB4240	2020-03-17	2020-03-27
+29	Newark Junior High School	6201 Lafayette Ave.	Newark	94560	0101000020E61000005E1F8C8E9A825EC0A1D4038B68C54240	2020-03-17	2020-03-27
+30	NUSD Central Kitchen	37370 Birch St.	Newark	94560	0101000020E61000002277C7188E815EC07B8BE2B08FC44240	2020-03-17	2020-03-27
+31	Sankofa Academy	581 61st St.	Oakland	94609	0101000020E610000086F01E56EE905EC04E80BCB266EC4240	2020-03-17	2020-04-13
+32	West Oakland Middle School	991 14th St.	Oakland	94607	0101000020E61000000A5DD3CD0F925EC0C02A72E371E74240	2020-03-17	2020-04-13
+33	Hoover Elementary	890 Brockhurst St.	Oakland	94608	0101000020E6100000C88A2B789B915EC0227024D060E94240	2020-03-17	2020-04-13
+34	Oakland High School	1023 MacArthur Blvd.	Oakland	94610	0101000020E6100000D37A095F298F5EC063DE99BFF8E64240	2020-03-17	2020-04-13
+35	Garfield Elementary	1640 22nd Ave.	Oakland	94606	0101000020E610000025308CAA158F5EC08B5242B0AAE44240	2020-03-17	2020-04-13
+36	Bret Harte Middle School	3700 Coolidge Ave.	Oakland	94602	0101000020E61000006709D748378D5EC072BA76B350E64240	2020-03-17	2020-04-13
+37	Life Academy	2101 35th Ave.	Oakland	94601	0101000020E61000003C7F7FEFDB8D5EC04FD1EC1571E44240	2020-03-17	2020-04-13
+38	Coliseum College Prep Academy	1390 66th Ave.	Oakland	94621	0101000020E6100000D208EC20658C5EC0FD0F559D7AE14240	2020-03-17	2020-04-13
+39	Madison Park Academy, Upper	400 Capistrano Dr.	Oakland	94603	0101000020E6100000C878944A788B5EC0586DA3A602DD4240	2020-03-17	2020-04-13
+40	Fremont High School	4610 Foothill Blvd.	Oakland	94601	0101000020E61000001FA0FB72668D5EC08E9257E718E34240	2020-03-17	2020-04-13
+41	Elmhurst United Middle School	1800 98th Ave.	Oakland	94603	0101000020E6100000153944DC9C8A5EC0C96DA06582DF4240	2020-03-17	2020-04-13
+42	Castlemont High School	8601 MacArthur Blvd.	Oakland	94605	0101000020E610000065AE6763808A5EC013FF66182DE14240	2020-03-17	2020-04-13
+43	Pleasanton Middle School	5001 Case Ave.	Pleasanton	94566	0101000020E6100000CDC5843D92785EC0DB44775AC8D34240	2020-03-17	2020-04-03
+44	Valley View Elementary	480 Adams Way	Pleasanton	94566	0101000020E6100000ADBDF49B2E775EC0EEC8FDB38BD44240	2020-03-17	2020-04-03
+45	Lydiksen Elementary	7700 Highland Oaks Dr.	Pleasanton	94588	0101000020E61000006CFB6882F27A5EC0E59D9ED21CD74240	2020-03-17	2020-04-03
+46	Alisal Elementary	1454 Santa Rita Rd.	Pleasanton	94566	0101000020E6100000D470DB08D5775EC0BE6C962600D64240	2020-03-17	2020-04-03
+47	San Leandro High School	2200 Bancroft Ave.	San Leandro	94577	0101000020E610000072C284D12C895EC08214E1CBE9DB4240	2020-03-16	2020-04-30
+48	John Muir Middle School	1444 William St.	San Leandro	94577	0101000020E6100000139E2BA5C28A5EC0C9DAF00577DB4240	2020-03-16	2020-04-30
+49	Monroe Elementary	3750 Monterey Blvd.	San Leandro	94578	0101000020E6100000E28FA2CE5C895EC0014B53A97ED94240	2020-03-16	2020-04-30
 \.
 
 
@@ -105,6 +236,212 @@ COPY accfb.distribution_sites (id, name, address, city, zip, location, open_date
 --
 
 COPY accfb.hours (site_id, day, open_time, close_time) FROM stdin;
+1	Monday	11:00:00	13:00:00
+1	Tuesday	11:00:00	13:00:00
+1	Wednesday	11:00:00	13:00:00
+1	Thursday	11:00:00	13:00:00
+1	Friday	11:00:00	13:00:00
+2	Monday	11:00:00	13:00:00
+2	Wednesday	11:00:00	13:00:00
+2	Friday	11:00:00	13:00:00
+3	Monday	11:00:00	13:00:00
+3	Wednesday	11:00:00	13:00:00
+3	Friday	11:00:00	13:00:00
+4	Monday	11:00:00	13:00:00
+4	Wednesday	11:00:00	13:00:00
+4	Friday	11:00:00	13:00:00
+5	Monday	11:00:00	13:00:00
+5	Wednesday	11:00:00	13:00:00
+5	Friday	11:00:00	13:00:00
+6	Monday	11:00:00	13:00:00
+6	Wednesday	11:00:00	13:00:00
+6	Friday	11:00:00	13:00:00
+7	Monday	11:00:00	13:00:00
+7	Wednesday	11:00:00	13:00:00
+7	Friday	11:00:00	13:00:00
+8	Monday	11:00:00	12:30:00
+8	Tuesday	11:00:00	12:30:00
+8	Wednesday	11:00:00	12:30:00
+8	Thursday	11:00:00	12:30:00
+8	Friday	11:00:00	12:30:00
+9	Monday	11:00:00	12:00:00
+9	Tuesday	11:00:00	12:00:00
+9	Wednesday	11:00:00	12:00:00
+9	Thursday	11:00:00	12:00:00
+9	Friday	11:00:00	12:00:00
+10	Monday	11:00:00	12:00:00
+10	Tuesday	11:00:00	12:00:00
+10	Wednesday	11:00:00	12:00:00
+10	Thursday	11:00:00	12:00:00
+10	Friday	11:00:00	12:00:00
+11	Monday	11:00:00	12:00:00
+11	Tuesday	11:00:00	12:00:00
+11	Wednesday	11:00:00	12:00:00
+11	Thursday	11:00:00	12:00:00
+11	Friday	11:00:00	12:00:00
+12	Monday	11:00:00	12:00:00
+12	Tuesday	11:00:00	12:00:00
+12	Wednesday	11:00:00	12:00:00
+12	Thursday	11:00:00	12:00:00
+12	Friday	11:00:00	12:00:00
+13	Monday	11:00:00	12:00:00
+13	Tuesday	11:00:00	12:00:00
+13	Wednesday	11:00:00	12:00:00
+13	Thursday	11:00:00	12:00:00
+13	Friday	11:00:00	12:00:00
+14	Monday	11:00:00	12:00:00
+14	Tuesday	11:00:00	12:00:00
+14	Wednesday	11:00:00	12:00:00
+14	Thursday	11:00:00	12:00:00
+14	Friday	11:00:00	12:00:00
+15	Monday	11:00:00	12:00:00
+15	Tuesday	11:00:00	12:00:00
+15	Wednesday	11:00:00	12:00:00
+15	Thursday	11:00:00	12:00:00
+15	Friday	11:00:00	12:00:00
+16	Monday	11:00:00	12:00:00
+16	Tuesday	11:00:00	12:00:00
+16	Wednesday	11:00:00	12:00:00
+16	Thursday	11:00:00	12:00:00
+16	Friday	11:00:00	12:00:00
+17	Monday	11:00:00	12:00:00
+17	Tuesday	11:00:00	12:00:00
+17	Wednesday	11:00:00	12:00:00
+17	Thursday	11:00:00	12:00:00
+17	Friday	11:00:00	12:00:00
+18	Monday	11:00:00	12:00:00
+18	Tuesday	11:00:00	12:00:00
+18	Wednesday	11:00:00	12:00:00
+18	Thursday	11:00:00	12:00:00
+18	Friday	11:00:00	12:00:00
+19	Monday	12:00:00	13:00:00
+19	Tuesday	12:00:00	13:00:00
+19	Wednesday	12:00:00	13:00:00
+19	Thursday	12:00:00	13:00:00
+19	Friday	12:00:00	13:00:00
+20	Monday	12:00:00	13:00:00
+20	Tuesday	12:00:00	13:00:00
+20	Wednesday	12:00:00	13:00:00
+20	Thursday	12:00:00	13:00:00
+20	Friday	12:00:00	13:00:00
+21	Monday	12:00:00	13:00:00
+21	Tuesday	12:00:00	13:00:00
+21	Wednesday	12:00:00	13:00:00
+21	Thursday	12:00:00	13:00:00
+21	Friday	12:00:00	13:00:00
+22	Monday	12:00:00	13:00:00
+22	Tuesday	12:00:00	13:00:00
+22	Wednesday	12:00:00	13:00:00
+22	Thursday	12:00:00	13:00:00
+22	Friday	12:00:00	13:00:00
+23	Monday	12:00:00	13:00:00
+23	Tuesday	12:00:00	13:00:00
+23	Wednesday	12:00:00	13:00:00
+23	Thursday	12:00:00	13:00:00
+23	Friday	12:00:00	13:00:00
+24	Monday	12:00:00	13:00:00
+24	Tuesday	12:00:00	13:00:00
+24	Wednesday	12:00:00	13:00:00
+24	Thursday	12:00:00	13:00:00
+24	Friday	12:00:00	13:00:00
+25	Monday	12:00:00	13:00:00
+25	Tuesday	12:00:00	13:00:00
+25	Wednesday	12:00:00	13:00:00
+25	Thursday	12:00:00	13:00:00
+25	Friday	12:00:00	13:00:00
+26	Monday	12:00:00	13:00:00
+26	Tuesday	12:00:00	13:00:00
+26	Wednesday	12:00:00	13:00:00
+26	Thursday	12:00:00	13:00:00
+26	Friday	12:00:00	13:00:00
+27	Monday	12:00:00	13:00:00
+27	Tuesday	12:00:00	13:00:00
+27	Wednesday	12:00:00	13:00:00
+27	Thursday	12:00:00	13:00:00
+27	Friday	12:00:00	13:00:00
+28	Monday	12:00:00	13:00:00
+28	Tuesday	12:00:00	13:00:00
+28	Wednesday	12:00:00	13:00:00
+28	Thursday	12:00:00	13:00:00
+28	Friday	12:00:00	13:00:00
+29	Monday	11:00:00	12:00:00
+29	Tuesday	11:00:00	12:00:00
+29	Wednesday	11:00:00	12:00:00
+29	Thursday	11:00:00	12:00:00
+29	Friday	11:00:00	12:00:00
+30	Monday	11:00:00	12:00:00
+30	Tuesday	11:00:00	12:00:00
+30	Wednesday	11:00:00	12:00:00
+30	Thursday	11:00:00	12:00:00
+30	Friday	11:00:00	12:00:00
+31	Monday	08:00:00	12:00:00
+31	Thursday	08:00:00	12:00:00
+32	Monday	08:00:00	12:00:00
+32	Thursday	08:00:00	12:00:00
+33	Monday	08:00:00	12:00:00
+33	Thursday	08:00:00	12:00:00
+34	Monday	08:00:00	12:00:00
+34	Thursday	08:00:00	12:00:00
+35	Monday	08:00:00	12:00:00
+35	Thursday	08:00:00	12:00:00
+36	Monday	08:00:00	12:00:00
+36	Thursday	08:00:00	12:00:00
+37	Monday	08:00:00	12:00:00
+37	Thursday	08:00:00	12:00:00
+38	Monday	08:00:00	12:00:00
+38	Thursday	08:00:00	12:00:00
+39	Monday	08:00:00	12:00:00
+39	Thursday	08:00:00	12:00:00
+40	Monday	08:00:00	12:00:00
+40	Thursday	08:00:00	12:00:00
+41	Monday	08:00:00	12:00:00
+41	Thursday	08:00:00	12:00:00
+42	Monday	08:00:00	12:00:00
+42	Thursday	08:00:00	12:00:00
+43	Monday	11:00:00	12:00:00
+43	Tuesday	11:00:00	12:00:00
+43	Wednesday	11:00:00	12:00:00
+43	Thursday	11:00:00	12:00:00
+43	Friday	11:00:00	12:00:00
+44	Monday	11:00:00	12:00:00
+44	Tuesday	11:00:00	12:00:00
+44	Wednesday	11:00:00	12:00:00
+44	Thursday	11:00:00	12:00:00
+44	Friday	11:00:00	12:00:00
+45	Monday	11:00:00	12:00:00
+45	Tuesday	11:00:00	12:00:00
+45	Wednesday	11:00:00	12:00:00
+45	Thursday	11:00:00	12:00:00
+45	Friday	11:00:00	12:00:00
+46	Monday	11:00:00	12:00:00
+46	Tuesday	11:00:00	12:00:00
+46	Wednesday	11:00:00	12:00:00
+46	Thursday	11:00:00	12:00:00
+46	Friday	11:00:00	12:00:00
+47	Monday	12:00:00	12:45:00
+47	Tuesday	12:00:00	12:45:00
+47	Wednesday	12:00:00	12:45:00
+47	Thursday	12:00:00	12:45:00
+47	Friday	12:00:00	12:45:00
+48	Monday	12:00:00	12:45:00
+48	Tuesday	12:00:00	12:45:00
+48	Wednesday	12:00:00	12:45:00
+48	Thursday	12:00:00	12:45:00
+48	Friday	12:00:00	12:45:00
+49	Monday	12:00:00	12:45:00
+49	Tuesday	12:00:00	12:45:00
+49	Wednesday	12:00:00	12:45:00
+49	Thursday	12:00:00	12:45:00
+49	Friday	12:00:00	12:45:00
+\.
+
+
+--
+-- Data for Name: referrals; Type: TABLE DATA; Schema: accfb; Owner: mmuscari
+--
+
+COPY accfb.referrals (site_id, referral_date, referrals) FROM stdin;
+48	2020-04-02	1
 \.
 
 
@@ -114,6 +451,21 @@ COPY accfb.hours (site_id, day, open_time, close_time) FROM stdin;
 
 COPY public.spatial_ref_sys (srid, auth_name, auth_srid, srtext, proj4text) FROM stdin;
 \.
+
+
+--
+-- Name: cities_id_seq; Type: SEQUENCE SET; Schema: accfb; Owner: mmuscari
+--
+
+SELECT pg_catalog.setval('accfb.cities_id_seq', 21, true);
+
+
+--
+-- Name: cities cities_pkey; Type: CONSTRAINT; Schema: accfb; Owner: mmuscari
+--
+
+ALTER TABLE ONLY accfb.cities
+    ADD CONSTRAINT cities_pkey PRIMARY KEY (id);
 
 
 --
@@ -133,11 +485,34 @@ ALTER TABLE ONLY accfb.hours
 
 
 --
+-- Name: referrals referrals_pkey; Type: CONSTRAINT; Schema: accfb; Owner: mmuscari
+--
+
+ALTER TABLE ONLY accfb.referrals
+    ADD CONSTRAINT referrals_pkey PRIMARY KEY (site_id, referral_date);
+
+
+--
+-- Name: referrals_referral_date_idx; Type: INDEX; Schema: accfb; Owner: mmuscari
+--
+
+CREATE INDEX referrals_referral_date_idx ON accfb.referrals USING btree (referral_date);
+
+
+--
+-- Name: referrals fk_site_id; Type: FK CONSTRAINT; Schema: accfb; Owner: mmuscari
+--
+
+ALTER TABLE ONLY accfb.referrals
+    ADD CONSTRAINT fk_site_id FOREIGN KEY (site_id) REFERENCES accfb.distribution_sites(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
 -- Name: hours hours_site_id_fkey; Type: FK CONSTRAINT; Schema: accfb; Owner: mmuscari
 --
 
 ALTER TABLE ONLY accfb.hours
-    ADD CONSTRAINT hours_site_id_fkey FOREIGN KEY (site_id) REFERENCES accfb.distribution_sites(id);
+    ADD CONSTRAINT hours_site_id_fkey FOREIGN KEY (site_id) REFERENCES accfb.distribution_sites(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
@@ -148,17 +523,31 @@ GRANT USAGE ON SCHEMA accfb TO foodbank;
 
 
 --
+-- Name: TABLE cities; Type: ACL; Schema: accfb; Owner: mmuscari
+--
+
+GRANT ALL ON TABLE accfb.cities TO foodbank;
+
+
+--
 -- Name: TABLE distribution_sites; Type: ACL; Schema: accfb; Owner: mmuscari
 --
 
-GRANT SELECT,INSERT,DELETE,TRIGGER,UPDATE ON TABLE accfb.distribution_sites TO foodbank;
+GRANT ALL ON TABLE accfb.distribution_sites TO foodbank;
 
 
 --
 -- Name: TABLE hours; Type: ACL; Schema: accfb; Owner: mmuscari
 --
 
-GRANT SELECT,INSERT,DELETE,TRIGGER,UPDATE ON TABLE accfb.hours TO foodbank;
+GRANT ALL ON TABLE accfb.hours TO foodbank;
+
+
+--
+-- Name: TABLE referrals; Type: ACL; Schema: accfb; Owner: mmuscari
+--
+
+GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE accfb.referrals TO foodbank;
 
 
 --

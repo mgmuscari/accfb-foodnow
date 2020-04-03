@@ -97,17 +97,21 @@ class FindPantryResource(Resource):
                 today = datetime.datetime.now(tz=pytz.timezone("America/Los_Angeles")).date()
                 tomorrow = today + datetime.timedelta(days=1)
                 day_after = today + datetime.timedelta(days=2)
+                three_days = today + datetime.timedelta(days=3)
 
                 sites_today = distribution_site_dao.find_open_sites_now(geolocation['lat'], geolocation['lng'])
                 sites_tomorrow = distribution_site_dao.find_open_sites_on_day(geolocation['lat'], geolocation['lng'], tomorrow)
                 sites_day_after = distribution_site_dao.find_open_sites_on_day(geolocation['lat'], geolocation['lng'], day_after)
+                sites_three_days = distribution_site_dao.find_open_sites_on_day(geolocation['lat'], geolocation['lng'], three_days)
 
                 site_responses_today = [FindPantryResource.site_response(site_summary, today, language) for site_summary in sites_today]
                 site_responses_tomorrow = [FindPantryResource.site_response(site_summary, tomorrow, language) for site_summary in sites_tomorrow]
                 site_responses_day_after = [FindPantryResource.site_response(site_summary, day_after, language) for site_summary in sites_day_after]
+                site_responses_three_days = [FindPantryResource.site_response(site_summary, three_days, language) for
+                                            site_summary in sites_three_days]
 
                 site_responses = {
-                    "sites": site_responses_today + site_responses_tomorrow + site_responses_day_after
+                    "sites": site_responses_today + site_responses_tomorrow + site_responses_day_after + site_responses_three_days
                 }
 
                 if len(site_responses) > 0:

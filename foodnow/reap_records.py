@@ -10,7 +10,8 @@ if __name__ == '__main__':
 
     acsid = os.environ.get('TWILIO_ACCOUNT_SID')
     auth_token = os.environ.get('TWILIO_AUTH_TOKEN')
-    flow_sid = os.environ.get('TWILIO_FLOW_SID')
+    bot_flow_sid = os.environ.get('TWILIO_BOT_FLOW_SID')
+    fallback_flow_sid = os.environ.get('TWILIO_FALLBACK_FLOW_SID')
 
     log = logging.getLogger('foodnow')
     log.setLevel(logging.DEBUG)
@@ -21,13 +22,14 @@ if __name__ == '__main__':
 
     log.info("Deleting executions")
     try:
-        for execution in client.studio.flows.get(flow_sid).executions.list(date_created_from=last_week):
-            try:
-                if execution.status != ExecutionInstance.Status.ACTIVE:
-                    log.info("Delete execution {}".format(execution.sid))
-                    execution.delete()
-            except Exception:
-                log.exception("An exception occurred deleting an execution")
+        for fow in [bot_flow_sid, fallback_flow_sid]:
+            for execution in client.studio.flows.get(fow).executions.list(date_created_from=last_week):
+                try:
+                    if execution.status != ExecutionInstance.Status.ACTIVE:
+                        log.info("Delete execution {}".format(execution.sid))
+                        execution.delete()
+                except Exception:
+                    log.exception("An exception occurred deleting an execution")
     except Exception:
         log.exception("An exception occurred iterating executions")
 

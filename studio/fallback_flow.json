@@ -1,0 +1,93 @@
+{
+  "description": "A New Flow",
+  "states": [
+    {
+      "name": "Trigger",
+      "type": "trigger",
+      "transitions": [
+        {
+          "event": "incomingMessage"
+        },
+        {
+          "next": "apologize_english",
+          "event": "incomingCall"
+        },
+        {
+          "event": "incomingRequest"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": 0,
+          "y": 0
+        }
+      }
+    },
+    {
+      "name": "apologize_english",
+      "type": "say-play",
+      "transitions": [
+        {
+          "next": "apologize_spanish",
+          "event": "audioComplete"
+        }
+      ],
+      "properties": {
+        "voice": "Polly.Salli",
+        "offset": {
+          "x": 150,
+          "y": 180
+        },
+        "loop": 1,
+        "say": "I'm sorry, but our automated system can't help you at this time. Please hold while I connect you to the ACCFB Emergency Food Helpline.",
+        "language": "en-US"
+      }
+    },
+    {
+      "name": "connect_to_helpline",
+      "type": "connect-call-to",
+      "transitions": [
+        {
+          "event": "callCompleted"
+        },
+        {
+          "event": "hangup"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": 150,
+          "y": 600
+        },
+        "caller_id": "{{contact.channel.address}}",
+        "noun": "number",
+        "to": "+1800870FOOD",
+        "timeout": 30
+      }
+    },
+    {
+      "name": "apologize_spanish",
+      "type": "say-play",
+      "transitions": [
+        {
+          "next": "connect_to_helpline",
+          "event": "audioComplete"
+        }
+      ],
+      "properties": {
+        "voice": "Polly.Conchita",
+        "offset": {
+          "x": 150,
+          "y": 380
+        },
+        "loop": 1,
+        "say": "Lo siento, pero nuestro sistema automatizado no puede ayudarlo en este momento. Espere mientras lo conecto a la línea de ayuda de emergencia de alimentos de ACCFB.",
+        "language": "es-ES"
+      }
+    }
+  ],
+  "initial_state": "Trigger",
+  "flags": {
+    "allow_concurrent_calls": true
+  }
+}

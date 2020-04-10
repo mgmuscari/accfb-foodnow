@@ -1,0 +1,3186 @@
+{
+  "description": "ACCFB FoodNow Help Bot",
+  "states": [
+    {
+      "name": "Trigger",
+      "type": "trigger",
+      "transitions": [
+        {
+          "next": "ask_language_sms_english",
+          "event": "incomingMessage"
+        },
+        {
+          "next": "welcome_english",
+          "event": "incomingCall"
+        },
+        {
+          "event": "incomingRequest"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": 0,
+          "y": 0
+        }
+      }
+    },
+    {
+      "name": "welcome_spanish",
+      "type": "gather-input-on-call",
+      "transitions": [
+        {
+          "next": "set_language_english_welcome",
+          "event": "keypress"
+        },
+        {
+          "event": "speech"
+        },
+        {
+          "next": "language_gather_variables",
+          "event": "timeout"
+        }
+      ],
+      "properties": {
+        "voice": "Polly.Conchita",
+        "offset": {
+          "x": 420,
+          "y": 460
+        },
+        "finish_on_key": "#",
+        "say": "Bienvenido a la línea de ayuda del banco de alimentos de la comunidad del condado de alameda. Para español, oprima dos.",
+        "language": "es-ES",
+        "stop_gather": false,
+        "speech_model": "default",
+        "profanity_filter": "false",
+        "timeout": 3,
+        "number_of_digits": 1,
+        "speech_timeout": "auto",
+        "loop": 1,
+        "gather_language": "en-US"
+      }
+    },
+    {
+      "name": "welcome_english",
+      "type": "gather-input-on-call",
+      "transitions": [
+        {
+          "next": "set_language_engl",
+          "event": "keypress"
+        },
+        {
+          "event": "speech"
+        },
+        {
+          "next": "welcome_spanish",
+          "event": "timeout"
+        }
+      ],
+      "properties": {
+        "voice": "Polly.Salli",
+        "number_of_digits": 1,
+        "speech_timeout": "auto",
+        "offset": {
+          "x": 40,
+          "y": 460
+        },
+        "loop": 1,
+        "finish_on_key": "",
+        "say": "Hello from Alameda County Community Food Bank. We can help connect you to emergency food resources. For English, press 1.",
+        "language": "en-US",
+        "stop_gather": false,
+        "gather_language": "en-US",
+        "profanity_filter": "false",
+        "timeout": 3
+      }
+    },
+    {
+      "name": "language_gather_variables",
+      "type": "set-variables",
+      "transitions": [
+        {
+          "next": "language_hangup",
+          "event": "next"
+        }
+      ],
+      "properties": {
+        "variables": [
+          {
+            "index": "0",
+            "value": "{% if flow.variables.language_attempts %}\n  {{flow.variables.language_attempts | plus: 1}}\n{% else %}\n  0\n{% endif %}",
+            "key": "language_attempts"
+          }
+        ],
+        "offset": {
+          "x": 820,
+          "y": 460
+        }
+      }
+    },
+    {
+      "name": "language_hangup",
+      "type": "split-based-on",
+      "transitions": [
+        {
+          "next": "say_goodbye_english",
+          "event": "noMatch"
+        },
+        {
+          "next": "welcome_english",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value less_than 3",
+              "arguments": [
+                "{{flow.variables.language_attempts}}"
+              ],
+              "type": "less_than",
+              "value": "3"
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "input": "{{flow.variables.language_attempts}}",
+        "offset": {
+          "x": 800,
+          "y": 770
+        }
+      }
+    },
+    {
+      "name": "set_language_engl",
+      "type": "set-variables",
+      "transitions": [
+        {
+          "next": "voice_language_split",
+          "event": "next"
+        }
+      ],
+      "properties": {
+        "variables": [
+          {
+            "index": "0",
+            "value": "{% if widgets.welcome_english.Digits == \"1\" %}en_US{% else %}es_US{% endif %}",
+            "key": "language"
+          }
+        ],
+        "offset": {
+          "x": 40,
+          "y": 770
+        }
+      }
+    },
+    {
+      "name": "set_language_english_welcome",
+      "type": "set-variables",
+      "transitions": [
+        {
+          "next": "voice_language_split",
+          "event": "next"
+        }
+      ],
+      "properties": {
+        "variables": [
+          {
+            "index": "0",
+            "value": "{% if widgets.welcome_spanish.Digits == \"1\" %}en_US{% else %}es_US{% endif %}",
+            "key": "language"
+          }
+        ],
+        "offset": {
+          "x": 430,
+          "y": 770
+        }
+      }
+    },
+    {
+      "name": "voice_language_split",
+      "type": "split-based-on",
+      "transitions": [
+        {
+          "next": "say_play_5",
+          "event": "noMatch"
+        },
+        {
+          "next": "gather_need_english",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value equal_to 1",
+              "arguments": [
+                "{{flow.variables.language}}"
+              ],
+              "type": "equal_to",
+              "value": "en_US"
+            }
+          ]
+        },
+        {
+          "next": "gather_need_spanish",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value equal_to 2",
+              "arguments": [
+                "{{flow.variables.language}}"
+              ],
+              "type": "equal_to",
+              "value": "es_US"
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "input": "{{flow.variables.language}}",
+        "offset": {
+          "x": 590,
+          "y": 1020
+        }
+      }
+    },
+    {
+      "name": "say_play_5",
+      "type": "say-play",
+      "transitions": [
+        {
+          "next": "welcome_english",
+          "event": "audioComplete"
+        }
+      ],
+      "properties": {
+        "voice": "Polly.Salli",
+        "offset": {
+          "x": 140,
+          "y": 1030
+        },
+        "loop": 1,
+        "say": "I'm sorry, that's an invalid selection",
+        "language": "en-US"
+      }
+    },
+    {
+      "name": "gather_city_english",
+      "type": "gather-input-on-call",
+      "transitions": [
+        {
+          "next": "gather_city_english",
+          "event": "keypress"
+        },
+        {
+          "next": "city_gathered_english",
+          "event": "speech"
+        },
+        {
+          "next": "calfresh_message_english",
+          "event": "timeout"
+        }
+      ],
+      "properties": {
+        "voice": "Polly.Salli",
+        "speech_timeout": "auto",
+        "offset": {
+          "x": 340,
+          "y": 1850
+        },
+        "loop": 1,
+        "hints": "Berkeley, Albany, Oakland, Alameda, San Leandro, Hayward, San Lorenzo, Castro Valley, Union City, Newark, Livermore, Dublin, Pleasanton, Sonol, Emeryville, Fremont, Piedmont, Ashland, Cherryland, Fairview",
+        "finish_on_key": "#",
+        "say": "Ok, what city are you located in?",
+        "language": "en-US",
+        "stop_gather": false,
+        "gather_language": "en-US",
+        "profanity_filter": "false",
+        "timeout": 10
+      }
+    },
+    {
+      "name": "city_gathered_english",
+      "type": "say-play",
+      "transitions": [
+        {
+          "next": "valid_city_http_english",
+          "event": "audioComplete"
+        }
+      ],
+      "properties": {
+        "voice": "Polly.Salli",
+        "offset": {
+          "x": 340,
+          "y": 2010
+        },
+        "loop": 1,
+        "say": "Thanks, just a moment please.",
+        "language": "en-US"
+      }
+    },
+    {
+      "name": "valid_city_http_english",
+      "type": "make-http-request",
+      "transitions": [
+        {
+          "next": "split_city_english",
+          "event": "success"
+        },
+        {
+          "next": "try_again_english",
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": 340,
+          "y": 2180
+        },
+        "method": "GET",
+        "content_type": "application/x-www-form-urlencoded;charset=utf-8",
+        "parameters": [
+          {
+            "value": "{{widgets.gather_city_english.SpeechResult}}",
+            "key": "city"
+          }
+        ],
+        "url": "https://accfb-foodnow.herokuapp.com/validate-city"
+      }
+    },
+    {
+      "name": "split_city_english",
+      "type": "split-based-on",
+      "transitions": [
+        {
+          "next": "try_again_english",
+          "event": "noMatch"
+        },
+        {
+          "next": "help_find_food_city_english",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value equal_to true",
+              "arguments": [
+                "{{widgets.valid_city_http_english.parsed.valid_city}}"
+              ],
+              "type": "equal_to",
+              "value": "true"
+            }
+          ]
+        },
+        {
+          "next": "out_of_area_english",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value equal_to false",
+              "arguments": [
+                "{{widgets.valid_city_http_english.parsed.valid_city}}"
+              ],
+              "type": "equal_to",
+              "value": "false"
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "input": "{{widgets.valid_city_http_english.parsed.valid_city}}",
+        "offset": {
+          "x": 340,
+          "y": 2340
+        }
+      }
+    },
+    {
+      "name": "help_find_food_city_english",
+      "type": "say-play",
+      "transitions": [
+        {
+          "next": "gather_address_english",
+          "event": "audioComplete"
+        }
+      ],
+      "properties": {
+        "voice": "Polly.Salli",
+        "offset": {
+          "x": 180,
+          "y": 2530
+        },
+        "loop": 1,
+        "say": "I can help you find food in {{widgets.valid_city_http_english.parsed.city}}",
+        "language": "en-US"
+      }
+    },
+    {
+      "name": "out_of_area_english",
+      "type": "say-play",
+      "transitions": [
+        {
+          "event": "audioComplete"
+        }
+      ],
+      "properties": {
+        "voice": "Polly.Salli",
+        "offset": {
+          "x": 560,
+          "y": 2530
+        },
+        "loop": 1,
+        "say": "It appears that you are not a resident of Alameda County. That is okay! To find a Food Bank in your area go to www.cafoodbanks.org",
+        "language": "en-US"
+      }
+    },
+    {
+      "name": "try_again_english",
+      "type": "say-play",
+      "transitions": [
+        {
+          "next": "gather_city_english",
+          "event": "audioComplete"
+        }
+      ],
+      "properties": {
+        "voice": "Polly.Salli",
+        "offset": {
+          "x": -180,
+          "y": 2250
+        },
+        "loop": 1,
+        "say": "I'm sorry, something went wrong, let's try again.",
+        "language": "en-US"
+      }
+    },
+    {
+      "name": "gather_address_english",
+      "type": "gather-input-on-call",
+      "transitions": [
+        {
+          "next": "gather_address_english",
+          "event": "keypress"
+        },
+        {
+          "next": "address_gathered_wait",
+          "event": "speech"
+        },
+        {
+          "next": "gather_address_english",
+          "event": "timeout"
+        }
+      ],
+      "properties": {
+        "voice": "Polly.Salli",
+        "speech_timeout": "auto",
+        "offset": {
+          "x": 180,
+          "y": 2700
+        },
+        "loop": 1,
+        "finish_on_key": "#",
+        "say": "What is the nearest address?",
+        "language": "en-US",
+        "stop_gather": false,
+        "gather_language": "en-US",
+        "profanity_filter": "true",
+        "timeout": 5
+      }
+    },
+    {
+      "name": "ask_language_sms_english",
+      "type": "send-and-wait-for-reply",
+      "transitions": [
+        {
+          "next": "split_language_sms",
+          "event": "incomingMessage"
+        },
+        {
+          "event": "timeout"
+        },
+        {
+          "event": "deliveryFailure"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -930,
+          "y": 470
+        },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "body": "For English, reply 'english'. Para español, responda 'español'‏‏‎ ‎",
+        "timeout": 600
+      }
+    },
+    {
+      "name": "split_language_sms",
+      "type": "split-based-on",
+      "transitions": [
+        {
+          "event": "noMatch"
+        },
+        {
+          "next": "gather_need_food_now_sms_english",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value contains english",
+              "arguments": [
+                "{{widgets.ask_language_sms_english.inbound.Body | downcase}}"
+              ],
+              "type": "contains",
+              "value": "english"
+            }
+          ]
+        },
+        {
+          "next": "gather_need_food_spanish_sms",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value regex español",
+              "arguments": [
+                "{{widgets.ask_language_sms_english.inbound.Body | downcase}}"
+              ],
+              "type": "regex",
+              "value": "espa(ñ|n)ol"
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "input": "{{widgets.ask_language_sms_english.inbound.Body | downcase}}",
+        "offset": {
+          "x": -930,
+          "y": 660
+        }
+      }
+    },
+    {
+      "name": "gather_city_sms_english",
+      "type": "send-and-wait-for-reply",
+      "transitions": [
+        {
+          "next": "valid_http_city_sms",
+          "event": "incomingMessage"
+        },
+        {
+          "event": "timeout"
+        },
+        {
+          "event": "deliveryFailure"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -1060,
+          "y": 1220
+        },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "body": "Ok, I can help you find food. What city are you located in?",
+        "timeout": 600
+      }
+    },
+    {
+      "name": "gather_need_food_spanish_sms",
+      "type": "send-and-wait-for-reply",
+      "transitions": [
+        {
+          "next": "decide_need_food_sms_spanish",
+          "event": "incomingMessage"
+        },
+        {
+          "event": "timeout"
+        },
+        {
+          "event": "deliveryFailure"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -2060,
+          "y": 880
+        },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "body": "¿Necesita ayuda con la comida de inmediato? Responda \"sí\" o \"no\"",
+        "timeout": 3600
+      }
+    },
+    {
+      "name": "address_gathered_wait",
+      "type": "say-play",
+      "transitions": [
+        {
+          "next": "http_find_pantry",
+          "event": "audioComplete"
+        }
+      ],
+      "properties": {
+        "voice": "Polly.Salli",
+        "offset": {
+          "x": 180,
+          "y": 2900
+        },
+        "loop": 1,
+        "say": "Ok, just a moment while I look that up.",
+        "language": "en-US"
+      }
+    },
+    {
+      "name": "http_find_pantry",
+      "type": "make-http-request",
+      "transitions": [
+        {
+          "next": "check_pantries_empty",
+          "event": "success"
+        },
+        {
+          "next": "try_again_english",
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": 180,
+          "y": 3110
+        },
+        "method": "GET",
+        "content_type": "application/x-www-form-urlencoded;charset=utf-8",
+        "parameters": [
+          {
+            "value": "{{widgets.valid_city_http_english.parsed.city}}",
+            "key": "city"
+          },
+          {
+            "value": "{{widgets.gather_address_english.SpeechResult}}",
+            "key": "address"
+          }
+        ],
+        "url": "https://accfb-foodnow.herokuapp.com/find-pantry"
+      }
+    },
+    {
+      "name": "respond_with_pantry_english",
+      "type": "gather-input-on-call",
+      "transitions": [
+        {
+          "next": "respond_with_pantry_english",
+          "event": "keypress"
+        },
+        {
+          "next": "test_repeat_pantry_information",
+          "event": "speech"
+        },
+        {
+          "next": "test_repeat_pantry_information",
+          "event": "timeout"
+        }
+      ],
+      "properties": {
+        "voice": "Polly.Salli",
+        "speech_timeout": "auto",
+        "offset": {
+          "x": 190,
+          "y": 4000
+        },
+        "loop": 1,
+        "hints": "Repeat, Another Option, Goodbye",
+        "finish_on_key": "#",
+        "say": "I found {{flow.variables.pantry_name}}. It is located at {{flow.variables.pantry_address}} in {{flow.variables.pantry_city}}. It is open {{flow.variables.pantry_day}} from {{flow.variables.pantry_open}} until {{flow.variables.pantry_close}}. It is {{flow.variables.pantry_distance}} away . . . . . . . . . . . . . . Say repeat, another option, or continue.",
+        "language": "en-US",
+        "stop_gather": false,
+        "gather_language": "en-US",
+        "profanity_filter": "false",
+        "timeout": 5
+      }
+    },
+    {
+      "name": "test_repeat_pantry_information",
+      "type": "split-based-on",
+      "transitions": [
+        {
+          "next": "calfresh_message_english",
+          "event": "noMatch"
+        },
+        {
+          "next": "respond_with_pantry_english",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value equal_to repeat",
+              "arguments": [
+                "{{widgets.respond_with_pantry_english.SpeechResult}}"
+              ],
+              "type": "equal_to",
+              "value": "Repeat"
+            }
+          ]
+        },
+        {
+          "next": "set_pantry_index",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value equal_to Another Option",
+              "arguments": [
+                "{{widgets.respond_with_pantry_english.SpeechResult}}"
+              ],
+              "type": "equal_to",
+              "value": "Another Option"
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "input": "{{widgets.respond_with_pantry_english.SpeechResult}}",
+        "offset": {
+          "x": 190,
+          "y": 4230
+        }
+      }
+    },
+    {
+      "name": "set_pantry_index",
+      "type": "set-variables",
+      "transitions": [
+        {
+          "next": "continue_decision",
+          "event": "next"
+        }
+      ],
+      "properties": {
+        "variables": [
+          {
+            "index": "0",
+            "value": "{% if flow.variables.pantry_index %} {{flow.variables.pantry_index | plus: 1}} {% else %}0{% endif %}",
+            "key": "pantry_index"
+          }
+        ],
+        "offset": {
+          "x": 190,
+          "y": 3440
+        }
+      }
+    },
+    {
+      "name": "continue_decision",
+      "type": "split-based-on",
+      "transitions": [
+        {
+          "next": "no_pantries_voice_english",
+          "event": "noMatch"
+        },
+        {
+          "next": "set_pantry_voice_english",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value less_than {{widgets.http_find_pantry.parsed.sites.size}}",
+              "arguments": [
+                "{{flow.variables.pantry_index}}"
+              ],
+              "type": "less_than",
+              "value": "{{widgets.http_find_pantry.parsed.sites.size}}"
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "input": "{{flow.variables.pantry_index}}",
+        "offset": {
+          "x": 70,
+          "y": 3600
+        }
+      }
+    },
+    {
+      "name": "set_pantry_voice_english",
+      "type": "set-variables",
+      "transitions": [
+        {
+          "next": "record_referral_voice_english",
+          "event": "next"
+        }
+      ],
+      "properties": {
+        "variables": [
+          {
+            "index": "0",
+            "value": "{% assign idx = flow.variables.pantry_index | plus: 0 %}{{ widgets.http_find_pantry.parsed.sites[idx].site_name}}",
+            "key": "pantry_name"
+          },
+          {
+            "value": "{% assign idx = flow.variables.pantry_index | plus: 0 %}{{ widgets.http_find_pantry.parsed.sites[idx].site_city}}",
+            "key": "pantry_city"
+          },
+          {
+            "value": "{% assign idx = flow.variables.pantry_index | plus: 0 %}{{ widgets.http_find_pantry.parsed.sites[idx].site_address}}",
+            "key": "pantry_address"
+          },
+          {
+            "value": "{% assign idx = flow.variables.pantry_index | plus: 0 %}{{ widgets.http_find_pantry.parsed.sites[idx].day_of_week}}",
+            "key": "pantry_day"
+          },
+          {
+            "index": "4",
+            "value": "{% assign idx = flow.variables.pantry_index | plus: 0 %}{{ widgets.http_find_pantry.parsed.sites[idx].site_open}}",
+            "key": "pantry_open"
+          },
+          {
+            "index": "5",
+            "value": "{% assign idx = flow.variables.pantry_index | plus: 0 %}{{ widgets.http_find_pantry.parsed.sites[idx].site_close}}",
+            "key": "pantry_close"
+          },
+          {
+            "value": "{% assign idx = flow.variables.pantry_index | plus: 0 %}{{ widgets.http_find_pantry.parsed.sites[idx].distance}}",
+            "key": "pantry_distance"
+          },
+          {
+            "index": "7",
+            "value": "{% assign idx = flow.variables.pantry_index | plus: 0 %}{{ widgets.http_find_pantry.parsed.sites[idx].site_id}}",
+            "key": "pantry_id"
+          }
+        ],
+        "offset": {
+          "x": 200,
+          "y": 3790
+        }
+      }
+    },
+    {
+      "name": "no_pantries_voice_english",
+      "type": "say-play",
+      "transitions": [
+        {
+          "next": "call_accfb_english",
+          "event": "audioComplete"
+        }
+      ],
+      "properties": {
+        "voice": "Polly.Salli",
+        "offset": {
+          "x": -180,
+          "y": 4040
+        },
+        "loop": 1,
+        "say": "I'm sorry, there are no food distribution sites available at this time.",
+        "language": "en-US"
+      }
+    },
+    {
+      "name": "calfresh_message_english",
+      "type": "say-play",
+      "transitions": [
+        {
+          "next": "gather_repeat_calfresh",
+          "event": "audioComplete"
+        }
+      ],
+      "properties": {
+        "voice": "Polly.Salli",
+        "offset": {
+          "x": 160,
+          "y": 4490
+        },
+        "loop": 1,
+        "say": "We can help you apply for CalFresh Food over the phone. Please call us at 1-877-847-3663.",
+        "language": "en-US"
+      }
+    },
+    {
+      "name": "say_goodbye_english",
+      "type": "say-play",
+      "transitions": [
+        {
+          "event": "audioComplete"
+        }
+      ],
+      "properties": {
+        "voice": "Polly.Salli",
+        "offset": {
+          "x": 10,
+          "y": 5170
+        },
+        "loop": 1,
+        "say": "Thank you! We are here to help. For more information about our organization, visit a c c f b dot org. . . . . . . . . . . .",
+        "language": "en-US"
+      }
+    },
+    {
+      "name": "gather_repeat_calfresh",
+      "type": "gather-input-on-call",
+      "transitions": [
+        {
+          "next": "say_goodbye_english",
+          "event": "keypress"
+        },
+        {
+          "next": "decide_repeat_calfresh_english",
+          "event": "speech"
+        },
+        {
+          "next": "say_goodbye_english",
+          "event": "timeout"
+        }
+      ],
+      "properties": {
+        "voice": "Polly.Salli",
+        "offset": {
+          "x": 160,
+          "y": 4710
+        },
+        "hints": "Yes, No",
+        "finish_on_key": "#",
+        "say": "Would you like me to repeat that information?",
+        "language": "en-US",
+        "stop_gather": false,
+        "speech_model": "default",
+        "profanity_filter": "false",
+        "timeout": 5,
+        "speech_timeout": "auto",
+        "loop": 1,
+        "gather_language": "en-US"
+      }
+    },
+    {
+      "name": "decide_repeat_calfresh_english",
+      "type": "split-based-on",
+      "transitions": [
+        {
+          "next": "say_goodbye_english",
+          "event": "noMatch"
+        },
+        {
+          "next": "calfresh_message_english",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value equal_to yes",
+              "arguments": [
+                "{{widgets.gather_repeat_calfresh.SpeechResult | downcase}}"
+              ],
+              "type": "contains",
+              "value": "Yes"
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "input": "{{widgets.gather_repeat_calfresh.SpeechResult | downcase}}",
+        "offset": {
+          "x": 170,
+          "y": 4900
+        }
+      }
+    },
+    {
+      "name": "check_pantries_empty",
+      "type": "split-based-on",
+      "transitions": [
+        {
+          "next": "no_pantries_voice_english",
+          "event": "noMatch"
+        },
+        {
+          "next": "set_pantry_index",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value greater than 0",
+              "arguments": [
+                "{{widgets.http_find_pantry.parsed.sites.size}}"
+              ],
+              "type": "greater_than",
+              "value": "0"
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "input": "{{widgets.http_find_pantry.parsed.sites.size}}",
+        "offset": {
+          "x": 170,
+          "y": 3270
+        }
+      }
+    },
+    {
+      "name": "call_accfb_english",
+      "type": "say-play",
+      "transitions": [
+        {
+          "next": "gather_repeat_helpline",
+          "event": "audioComplete"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -180,
+          "y": 4300
+        },
+        "loop": 1,
+        "say": "For additional locations or to speak to one of our Food Helpline operators, please call 510-635-3663.  Helpline hours are Monday - Friday, 9am - 4pm."
+      }
+    },
+    {
+      "name": "gather_repeat_helpline",
+      "type": "gather-input-on-call",
+      "transitions": [
+        {
+          "next": "gather_repeat_helpline",
+          "event": "keypress"
+        },
+        {
+          "next": "decide_repeat_helpline",
+          "event": "speech"
+        },
+        {
+          "next": "calfresh_message_english",
+          "event": "timeout"
+        }
+      ],
+      "properties": {
+        "voice": "Polly.Salli",
+        "speech_timeout": "auto",
+        "offset": {
+          "x": -180,
+          "y": 4510
+        },
+        "loop": 1,
+        "hints": "yes, no",
+        "finish_on_key": "#",
+        "say": "Would you like me to repeat that?",
+        "language": "en-US",
+        "stop_gather": false,
+        "gather_language": "en-US",
+        "profanity_filter": "true",
+        "timeout": 5
+      }
+    },
+    {
+      "name": "decide_repeat_helpline",
+      "type": "split-based-on",
+      "transitions": [
+        {
+          "next": "say_goodbye_english",
+          "event": "noMatch"
+        },
+        {
+          "next": "call_accfb_english",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value equal_to yes",
+              "arguments": [
+                "{{widgets.gather_repeat_helpline.SpeechResult | downcase}}"
+              ],
+              "type": "contains",
+              "value": "yes"
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "input": "{{widgets.gather_repeat_helpline.SpeechResult | downcase}}",
+        "offset": {
+          "x": -220,
+          "y": 4710
+        }
+      }
+    },
+    {
+      "name": "valid_http_city_sms",
+      "type": "make-http-request",
+      "transitions": [
+        {
+          "next": "decide_valid_city_sms",
+          "event": "success"
+        },
+        {
+          "next": "sms_failure_english",
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -1060,
+          "y": 1410
+        },
+        "method": "GET",
+        "content_type": "application/x-www-form-urlencoded;charset=utf-8",
+        "parameters": [
+          {
+            "value": "{{widgets.gather_city_sms_english.inbound.Body  | downcase | strip}}",
+            "key": "city"
+          }
+        ],
+        "url": "https://accfb-foodnow.herokuapp.com/validate-city"
+      }
+    },
+    {
+      "name": "decide_valid_city_sms",
+      "type": "split-based-on",
+      "transitions": [
+        {
+          "next": "out_of_area_sms_english",
+          "event": "noMatch"
+        },
+        {
+          "next": "gather_address_sms_english",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value equal_to True",
+              "arguments": [
+                "{{widgets.valid_http_city_sms.parsed.valid_city}}"
+              ],
+              "type": "equal_to",
+              "value": "True"
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "input": "{{widgets.valid_http_city_sms.parsed.valid_city}}",
+        "offset": {
+          "x": -1070,
+          "y": 1590
+        }
+      }
+    },
+    {
+      "name": "gather_address_sms_english",
+      "type": "send-and-wait-for-reply",
+      "transitions": [
+        {
+          "next": "http_find_pantries_sms_english",
+          "event": "incomingMessage"
+        },
+        {
+          "event": "timeout"
+        },
+        {
+          "event": "deliveryFailure"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -1060,
+          "y": 1880
+        },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "body": "Ok, what is the nearest address?",
+        "timeout": 600
+      }
+    },
+    {
+      "name": "out_of_area_sms_english",
+      "type": "send-message",
+      "transitions": [
+        {
+          "event": "sent"
+        },
+        {
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -1370,
+          "y": 1810
+        },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "to": "{{contact.channel.address}}",
+        "body": "It appears that you are not a resident of Alameda County. That's okay! To find a Food Bank in your area go to: http://www.cafoodbanks.org/find-food-assistance"
+      }
+    },
+    {
+      "name": "http_find_pantries_sms_english",
+      "type": "make-http-request",
+      "transitions": [
+        {
+          "next": "check_empty_results_sms_english",
+          "event": "success"
+        },
+        {
+          "next": "sms_failure_english",
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -1060,
+          "y": 2080
+        },
+        "method": "GET",
+        "content_type": "application/x-www-form-urlencoded;charset=utf-8",
+        "parameters": [
+          {
+            "value": "{{widgets.gather_city_sms_english.inbound.Body  | downcase | strip}}",
+            "key": "city"
+          },
+          {
+            "value": "{{widgets.gather_address_sms_english.inbound.Body  | downcase | strip}}",
+            "key": "address"
+          }
+        ],
+        "url": "https://accfb-foodnow.herokuapp.com/find-pantry"
+      }
+    },
+    {
+      "name": "sms_failure_english",
+      "type": "send-message",
+      "transitions": [
+        {
+          "next": "gather_city_sms_english",
+          "event": "sent"
+        },
+        {
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -700,
+          "y": 2080
+        },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "to": "{{contact.channel.address}}",
+        "body": "Sorry, something went wrong. Let's try again."
+      }
+    },
+    {
+      "name": "check_empty_results_sms_english",
+      "type": "split-based-on",
+      "transitions": [
+        {
+          "next": "set_pantry_index_sms_english",
+          "event": "noMatch"
+        },
+        {
+          "next": "send_no_pantries_sms_english",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value equal_to 0",
+              "arguments": [
+                "{{widgets.http_find_pantries_sms_english.parsed.sites.size}}"
+              ],
+              "type": "equal_to",
+              "value": "0"
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "input": "{{widgets.http_find_pantries_sms_english.parsed.sites.size}}",
+        "offset": {
+          "x": -1090,
+          "y": 2350
+        }
+      }
+    },
+    {
+      "name": "send_no_pantries_sms_english",
+      "type": "send-message",
+      "transitions": [
+        {
+          "event": "sent"
+        },
+        {
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -720,
+          "y": 2350
+        },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "to": "{{contact.channel.address}}",
+        "body": "I'm sorry, I couldn't find any open distribution sites. For additional locations or to speak to one of our Food Helpline operators, please call 510-635-3663.  Helpline hours are Monday - Friday, 9am - 4pm."
+      }
+    },
+    {
+      "name": "set_pantry_index_sms_english",
+      "type": "set-variables",
+      "transitions": [
+        {
+          "next": "continue_decision_sms_english",
+          "event": "next"
+        }
+      ],
+      "properties": {
+        "variables": [
+          {
+            "value": "{% if flow.variables.pantry_index %} {{flow.variables.pantry_index | plus: 1}} {% else %}0{% endif %}",
+            "key": "pantry_index"
+          }
+        ],
+        "offset": {
+          "x": -1090,
+          "y": 2520
+        }
+      }
+    },
+    {
+      "name": "set_pantry_sms_english",
+      "type": "set-variables",
+      "transitions": [
+        {
+          "next": "record_referral_sms_english",
+          "event": "next"
+        }
+      ],
+      "properties": {
+        "variables": [
+          {
+            "index": "0",
+            "value": "{% assign idx = flow.variables.pantry_index | plus: 0 %}{{ widgets.http_find_pantries_sms_english.parsed.sites[idx].site_name}}",
+            "key": "pantry_name"
+          },
+          {
+            "index": "1",
+            "value": "{% assign idx = flow.variables.pantry_index | plus: 0 %}{{ widgets.http_find_pantries_sms_english.parsed.sites[idx].site_address}}",
+            "key": "pantry_address"
+          },
+          {
+            "index": "2",
+            "value": "{% assign idx = flow.variables.pantry_index | plus: 0 %}{{ widgets.http_find_pantries_sms_english.parsed.sites[idx].site_city}}",
+            "key": "pantry_city"
+          },
+          {
+            "index": "3",
+            "value": "{% assign idx = flow.variables.pantry_index | plus: 0 %}{{ widgets.http_find_pantries_sms_english.parsed.sites[idx].site_open}}",
+            "key": "pantry_open"
+          },
+          {
+            "index": "4",
+            "value": "{% assign idx = flow.variables.pantry_index | plus: 0 %}{{ widgets.http_find_pantries_sms_english.parsed.sites[idx].site_close}}",
+            "key": "pantry_close"
+          },
+          {
+            "index": "5",
+            "value": "{% assign idx = flow.variables.pantry_index | plus: 0 %}{{ widgets.http_find_pantries_sms_english.parsed.sites[idx].distance}}",
+            "key": "pantry_distance"
+          },
+          {
+            "index": "6",
+            "value": "{% assign idx = flow.variables.pantry_index | plus: 0 %}{{ widgets.http_find_pantries_sms_english.parsed.sites[idx].site_id}}",
+            "key": "pantry_id"
+          },
+          {
+            "value": "{% assign idx = flow.variables.pantry_index | plus: 0 %}{{ widgets.http_find_pantries_sms_english.parsed.sites[idx].day_of_week}}",
+            "key": "pantry_day"
+          }
+        ],
+        "offset": {
+          "x": -1090,
+          "y": 2900
+        }
+      }
+    },
+    {
+      "name": "send_pantry_sms_english",
+      "type": "send-and-wait-for-reply",
+      "transitions": [
+        {
+          "next": "decide_another_option_sms_english",
+          "event": "incomingMessage"
+        },
+        {
+          "event": "timeout"
+        },
+        {
+          "event": "deliveryFailure"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -1090,
+          "y": 3080
+        },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "body": "I found {{flow.variables.pantry_name}}.\nIt is located at {{flow.variables.pantry_address}} in {{flow.variables.pantry_city}}.\nIt is open {{flow.variables.pantry_day}} from {{flow.variables.pantry_open}} until {{flow.variables.pantry_close}}.\nIt is {{flow.variables.pantry_distance}} away.\nFor another option, reply \"another option\"",
+        "timeout": 600
+      }
+    },
+    {
+      "name": "decide_another_option_sms_english",
+      "type": "split-based-on",
+      "transitions": [
+        {
+          "next": "send_goodbye_sms_english",
+          "event": "noMatch"
+        },
+        {
+          "next": "set_pantry_index_sms_english",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value equal_to another option",
+              "arguments": [
+                "{{widgets.send_pantry_sms_english.inbound.Body  | downcase | strip}}"
+              ],
+              "type": "equal_to",
+              "value": "another option"
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "input": "{{widgets.send_pantry_sms_english.inbound.Body  | downcase | strip}}",
+        "offset": {
+          "x": -1130,
+          "y": 3270
+        }
+      }
+    },
+    {
+      "name": "send_goodbye_sms_english",
+      "type": "send-message",
+      "transitions": [
+        {
+          "event": "sent"
+        },
+        {
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -1070,
+          "y": 3540
+        },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "to": "{{contact.channel.address}}",
+        "body": "Thank you! We are here to help. For more information about our organization, visit accfb.org. We can also help you apply for CalFresh Food over the phone. Please call us at 1-877-847-3663."
+      }
+    },
+    {
+      "name": "gather_need_english",
+      "type": "gather-input-on-call",
+      "transitions": [
+        {
+          "next": "gather_need_english",
+          "event": "keypress"
+        },
+        {
+          "next": "decide_need_food_now",
+          "event": "speech"
+        },
+        {
+          "next": "gather_need_english",
+          "event": "timeout"
+        }
+      ],
+      "properties": {
+        "voice": "Polly.Salli",
+        "offset": {
+          "x": 580,
+          "y": 1280
+        },
+        "hints": "Yes, No",
+        "finish_on_key": "#",
+        "say": "Do you need help with food right away? Say yes or no.",
+        "language": "en-US",
+        "stop_gather": false,
+        "speech_model": "numbers_and_commands",
+        "profanity_filter": "false",
+        "timeout": 5,
+        "speech_timeout": "auto",
+        "loop": 1,
+        "gather_language": "en-US"
+      }
+    },
+    {
+      "name": "decide_need_food_now",
+      "type": "split-based-on",
+      "transitions": [
+        {
+          "next": "gather_calfresh_english",
+          "event": "noMatch"
+        },
+        {
+          "next": "gather_city_english",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value equal_to Yes",
+              "arguments": [
+                "{{widgets.gather_need_english.SpeechResult}}"
+              ],
+              "type": "contains",
+              "value": "Yes"
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "input": "{{widgets.gather_need_english.SpeechResult}}",
+        "offset": {
+          "x": 570,
+          "y": 1520
+        }
+      }
+    },
+    {
+      "name": "gather_calfresh_english",
+      "type": "gather-input-on-call",
+      "transitions": [
+        {
+          "next": "gather_calfresh_english",
+          "event": "keypress"
+        },
+        {
+          "next": "decide_calfresh_voice_english",
+          "event": "speech"
+        },
+        {
+          "next": "gather_calfresh_english",
+          "event": "timeout"
+        }
+      ],
+      "properties": {
+        "voice": "Polly.Salli",
+        "offset": {
+          "x": 20,
+          "y": 1520
+        },
+        "hints": "Yes, No",
+        "finish_on_key": "#",
+        "say": "Our Food Bank team members can help you apply for CalFresh Food benefits. If approved, you will receive a debit-like card, called EBT, that you can use to buy groceries. Are you interested in learning more? Say yes or no.",
+        "language": "en-US",
+        "stop_gather": false,
+        "speech_model": "numbers_and_commands",
+        "profanity_filter": "false",
+        "timeout": 5,
+        "speech_timeout": "auto",
+        "loop": 1,
+        "gather_language": "en-US"
+      }
+    },
+    {
+      "name": "decide_calfresh_voice_english",
+      "type": "split-based-on",
+      "transitions": [
+        {
+          "next": "say_goodbye_english",
+          "event": "noMatch"
+        },
+        {
+          "next": "calfresh_message_english",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value equal_to Yes",
+              "arguments": [
+                "{{widgets.gather_calfresh_english.SpeechResult | downcase}}"
+              ],
+              "type": "contains",
+              "value": "yes"
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "input": "{{widgets.gather_calfresh_english.SpeechResult | downcase}}",
+        "offset": {
+          "x": -110,
+          "y": 1850
+        }
+      }
+    },
+    {
+      "name": "gather_need_food_now_sms_english",
+      "type": "send-and-wait-for-reply",
+      "transitions": [
+        {
+          "next": "decide_need_food_now_sms_english",
+          "event": "incomingMessage"
+        },
+        {
+          "event": "timeout"
+        },
+        {
+          "event": "deliveryFailure"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -1050,
+          "y": 850
+        },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "body": "Do you need help with food right away?  Reply \"yes\" or \"no\"",
+        "timeout": 600
+      }
+    },
+    {
+      "name": "decide_need_food_now_sms_english",
+      "type": "split-based-on",
+      "transitions": [
+        {
+          "next": "send_calfresh_sms_english",
+          "event": "noMatch"
+        },
+        {
+          "next": "gather_city_sms_english",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value contains yes",
+              "arguments": [
+                "{{widgets.gather_need_food_now_sms_english.inbound.Body  | downcase | strip}}"
+              ],
+              "type": "contains",
+              "value": "yes"
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "input": "{{widgets.gather_need_food_now_sms_english.inbound.Body  | downcase | strip}}",
+        "offset": {
+          "x": -1090,
+          "y": 1030
+        }
+      }
+    },
+    {
+      "name": "send_calfresh_sms_english",
+      "type": "send-message",
+      "transitions": [
+        {
+          "event": "sent"
+        },
+        {
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -1390,
+          "y": 1510
+        },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "to": "{{contact.channel.address}}",
+        "body": "Our Food Bank team members can help you apply for CalFresh Food benefits. If approved, you will receive a debit-like card, called EBT, that you can use to buy groceries. We can help you apply for CalFresh Food over the phone. Please call us at 1-877-847-3663."
+      }
+    },
+    {
+      "name": "gather_need_spanish",
+      "type": "gather-input-on-call",
+      "transitions": [
+        {
+          "next": "gather_need_spanish",
+          "event": "keypress"
+        },
+        {
+          "next": "decide_need_food_spanish",
+          "event": "speech"
+        },
+        {
+          "next": "gather_need_spanish",
+          "event": "timeout"
+        }
+      ],
+      "properties": {
+        "voice": "Polly.Conchita",
+        "speech_timeout": "auto",
+        "offset": {
+          "x": 1070,
+          "y": 1280
+        },
+        "loop": 1,
+        "finish_on_key": "#",
+        "say": "¿Necesita ayuda con la comida de inmediato? Diga sí o no.",
+        "language": "es-ES",
+        "stop_gather": false,
+        "gather_language": "es-MX",
+        "profanity_filter": "false",
+        "timeout": 5
+      }
+    },
+    {
+      "name": "decide_need_food_spanish",
+      "type": "split-based-on",
+      "transitions": [
+        {
+          "next": "gather_calfresh_spanish",
+          "event": "noMatch"
+        },
+        {
+          "next": "gather_city_spanish",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value equal_to Si",
+              "arguments": [
+                "{{widgets.gather_need_spanish.SpeechResult | downcase}}"
+              ],
+              "type": "regex",
+              "value": ".*(s(i|í)|y).*"
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "input": "{{widgets.gather_need_spanish.SpeechResult | downcase}}",
+        "offset": {
+          "x": 1070,
+          "y": 1520
+        }
+      }
+    },
+    {
+      "name": "gather_city_spanish",
+      "type": "gather-input-on-call",
+      "transitions": [
+        {
+          "next": "gather_city_spanish",
+          "event": "keypress"
+        },
+        {
+          "next": "say_play_1",
+          "event": "speech"
+        },
+        {
+          "event": "timeout"
+        }
+      ],
+      "properties": {
+        "voice": "Polly.Conchita",
+        "speech_timeout": "auto",
+        "offset": {
+          "x": 1060,
+          "y": 1840
+        },
+        "loop": 1,
+        "hints": "Berkeley, Albany, Oakland, Alameda, San Leandro, Hayward, San Lorenzo, Castro Valley, Union City, Newark, Livermore, Dublin, Pleasanton, Sonol, Emeryville, Fremont, Piedmont, Ashland, Cherryland, Fairview",
+        "finish_on_key": "#",
+        "say": "¿En que ciudad estas?",
+        "language": "es-ES",
+        "stop_gather": false,
+        "gather_language": "en-US",
+        "profanity_filter": "true",
+        "timeout": 10
+      }
+    },
+    {
+      "name": "say_play_1",
+      "type": "say-play",
+      "transitions": [
+        {
+          "next": "valid_city_http_spanish",
+          "event": "audioComplete"
+        }
+      ],
+      "properties": {
+        "voice": "Polly.Conchita",
+        "offset": {
+          "x": 1060,
+          "y": 2000
+        },
+        "loop": 1,
+        "say": "gracias, solo un momento por favor.",
+        "language": "es-ES"
+      }
+    },
+    {
+      "name": "valid_city_http_spanish",
+      "type": "make-http-request",
+      "transitions": [
+        {
+          "next": "split_city_spanish",
+          "event": "success"
+        },
+        {
+          "next": "try_again_spanish",
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": 1060,
+          "y": 2170
+        },
+        "method": "GET",
+        "content_type": "application/x-www-form-urlencoded;charset=utf-8",
+        "parameters": [
+          {
+            "value": "{{widgets.gather_city_spanish.SpeechResult}}",
+            "key": "city"
+          }
+        ],
+        "url": "https://accfb-foodnow.herokuapp.com/validate-city"
+      }
+    },
+    {
+      "name": "split_city_spanish",
+      "type": "split-based-on",
+      "transitions": [
+        {
+          "next": "try_again_spanish",
+          "event": "noMatch"
+        },
+        {
+          "next": "help_find_food_city_spanish",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value equal_to true",
+              "arguments": [
+                "{{widgets.valid_city_http_spanish.parsed.valid_city}}"
+              ],
+              "type": "equal_to",
+              "value": "true"
+            }
+          ]
+        },
+        {
+          "next": "out_of_area_spanish",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value equal_to false",
+              "arguments": [
+                "{{widgets.valid_city_http_spanish.parsed.valid_city}}"
+              ],
+              "type": "equal_to",
+              "value": "false"
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "input": "{{widgets.valid_city_http_spanish.parsed.valid_city}}",
+        "offset": {
+          "x": 1060,
+          "y": 2340
+        }
+      }
+    },
+    {
+      "name": "try_again_spanish",
+      "type": "say-play",
+      "transitions": [
+        {
+          "next": "gather_city_spanish",
+          "event": "audioComplete"
+        }
+      ],
+      "properties": {
+        "voice": "Polly.Conchita",
+        "offset": {
+          "x": 1590,
+          "y": 2300
+        },
+        "loop": 1,
+        "say": "Lo siento, algo salió mal, intentemos de nuevo.",
+        "language": "es-ES"
+      }
+    },
+    {
+      "name": "out_of_area_spanish",
+      "type": "say-play",
+      "transitions": [
+        {
+          "event": "audioComplete"
+        }
+      ],
+      "properties": {
+        "voice": "Polly.Conchita",
+        "offset": {
+          "x": 1590,
+          "y": 2520
+        },
+        "loop": 1,
+        "say": "Parece que no eres residente del condado de Alameda. ¡Eso está bien! Para encontrar un banco de alimentos en su área, vaya a www.cafoodbanks.org",
+        "language": "es-ES"
+      }
+    },
+    {
+      "name": "help_find_food_city_spanish",
+      "type": "say-play",
+      "transitions": [
+        {
+          "next": "gather_address_spanish",
+          "event": "audioComplete"
+        }
+      ],
+      "properties": {
+        "voice": "Polly.Conchita",
+        "offset": {
+          "x": 1110,
+          "y": 2530
+        },
+        "loop": 1,
+        "say": "Puedo ayudarte a encontrar comida en {{widgets.valid_city_http_spanish.parsed.city}}.",
+        "language": "es-ES"
+      }
+    },
+    {
+      "name": "gather_address_spanish",
+      "type": "gather-input-on-call",
+      "transitions": [
+        {
+          "next": "gather_address_spanish",
+          "event": "keypress"
+        },
+        {
+          "next": "address_gathered_wait_spanish",
+          "event": "speech"
+        },
+        {
+          "next": "gather_address_spanish",
+          "event": "timeout"
+        }
+      ],
+      "properties": {
+        "voice": "Polly.Conchita",
+        "speech_timeout": "auto",
+        "offset": {
+          "x": 1110,
+          "y": 2710
+        },
+        "loop": 1,
+        "finish_on_key": "#",
+        "say": "¿Cuál es la dirección más cercana?",
+        "language": "es-ES",
+        "stop_gather": false,
+        "gather_language": "es-MX",
+        "profanity_filter": "true",
+        "timeout": 5
+      }
+    },
+    {
+      "name": "address_gathered_wait_spanish",
+      "type": "say-play",
+      "transitions": [
+        {
+          "next": "http_find_pantry_spanish",
+          "event": "audioComplete"
+        }
+      ],
+      "properties": {
+        "voice": "Polly.Conchita",
+        "offset": {
+          "x": 1110,
+          "y": 2910
+        },
+        "loop": 1,
+        "say": "Gracias, solo un momento mientras busco eso.",
+        "language": "es-ES"
+      }
+    },
+    {
+      "name": "http_find_pantry_spanish",
+      "type": "make-http-request",
+      "transitions": [
+        {
+          "next": "check_pantries_spanish",
+          "event": "success"
+        },
+        {
+          "next": "try_again_spanish",
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": 1120,
+          "y": 3110
+        },
+        "method": "GET",
+        "content_type": "application/x-www-form-urlencoded;charset=utf-8",
+        "parameters": [
+          {
+            "value": "{{widgets.valid_city_http_spanish.parsed.city}}",
+            "key": "city"
+          },
+          {
+            "value": "{{widgets.gather_address_spanish.SpeechResult}}",
+            "key": "address"
+          },
+          {
+            "value": "es_US",
+            "key": "language"
+          }
+        ],
+        "url": "https://accfb-foodnow.herokuapp.com/find-pantry"
+      }
+    },
+    {
+      "name": "check_pantries_spanish",
+      "type": "split-based-on",
+      "transitions": [
+        {
+          "next": "no_pantries_voice_spanish",
+          "event": "noMatch"
+        },
+        {
+          "next": "set_pantry_index_spanish",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value greater_than 0",
+              "arguments": [
+                "{{widgets.http_find_pantry_spanish.parsed.sites.size}}"
+              ],
+              "type": "greater_than",
+              "value": "0"
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "input": "{{widgets.http_find_pantry_spanish.parsed.sites.size}}",
+        "offset": {
+          "x": 1100,
+          "y": 3300
+        }
+      }
+    },
+    {
+      "name": "set_pantry_index_spanish",
+      "type": "set-variables",
+      "transitions": [
+        {
+          "next": "continue_decision_spanish",
+          "event": "next"
+        }
+      ],
+      "properties": {
+        "variables": [
+          {
+            "index": "0",
+            "value": "{% if flow.variables.pantry_index %} {{flow.variables.pantry_index | plus: 1}} {% else %}0{% endif %}",
+            "key": "pantry_index"
+          }
+        ],
+        "offset": {
+          "x": 1120,
+          "y": 3480
+        }
+      }
+    },
+    {
+      "name": "no_pantries_voice_spanish",
+      "type": "say-play",
+      "transitions": [
+        {
+          "next": "call_accfb_spanish",
+          "event": "audioComplete"
+        }
+      ],
+      "properties": {
+        "voice": "Polly.Conchita",
+        "offset": {
+          "x": 1590,
+          "y": 4060
+        },
+        "loop": 1,
+        "say": "Lo siento, no hay sitios de distribución de alimentos disponibles en este momento.",
+        "language": "es-ES"
+      }
+    },
+    {
+      "name": "continue_decision_spanish",
+      "type": "split-based-on",
+      "transitions": [
+        {
+          "next": "no_pantries_voice_spanish",
+          "event": "noMatch"
+        },
+        {
+          "next": "set_pantry_spanish",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value less_than {{widgets.http_find_pantry_spanish.parsed.sites.size}}",
+              "arguments": [
+                "{{flow.variables.pantry_index}}"
+              ],
+              "type": "less_than",
+              "value": "{{widgets.http_find_pantry_spanish.parsed.sites.size}}"
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "input": "{{flow.variables.pantry_index}}",
+        "offset": {
+          "x": 990,
+          "y": 3650
+        }
+      }
+    },
+    {
+      "name": "set_pantry_spanish",
+      "type": "set-variables",
+      "transitions": [
+        {
+          "next": "record_referral_voice_spanish",
+          "event": "next"
+        }
+      ],
+      "properties": {
+        "variables": [
+          {
+            "index": "0",
+            "value": "{% assign idx = flow.variables.pantry_index | plus: 0 %}{{ widgets.http_find_pantry_spanish.parsed.sites[idx].site_name}}",
+            "key": "pantry_name"
+          },
+          {
+            "index": "1",
+            "value": "{% assign idx = flow.variables.pantry_index | plus: 0 %}{{ widgets.http_find_pantry_spanish.parsed.sites[idx].site_city}}",
+            "key": "pantry_city"
+          },
+          {
+            "index": "2",
+            "value": "{% assign idx = flow.variables.pantry_index | plus: 0 %}{{ widgets.http_find_pantry_spanish.parsed.sites[idx].site_address}}",
+            "key": "pantry_address"
+          },
+          {
+            "index": "3",
+            "value": "{% assign idx = flow.variables.pantry_index | plus: 0 %}{{ widgets.http_find_pantry_spanish.parsed.sites[idx].day_of_week}}",
+            "key": "pantry_day"
+          },
+          {
+            "index": "4",
+            "value": "{% assign idx = flow.variables.pantry_index | plus: 0 %}{{ widgets.http_find_pantry_spanish.parsed.sites[idx].site_open}}",
+            "key": "pantry_open"
+          },
+          {
+            "index": "5",
+            "value": "{% assign idx = flow.variables.pantry_index | plus: 0 %}{{ widgets.http_find_pantry_spanish.parsed.sites[idx].site_close}}",
+            "key": "pantry_close"
+          },
+          {
+            "index": "6",
+            "value": "{% assign idx = flow.variables.pantry_index | plus: 0 %}{{ widgets.http_find_pantry_spanish.parsed.sites[idx].distance}}",
+            "key": "pantry_distance"
+          },
+          {
+            "index": "7",
+            "value": "{% assign idx = flow.variables.pantry_index | plus: 0 %}{{ widgets.http_find_pantry_spanish.parsed.sites[idx].site_id}}",
+            "key": "pantry_id"
+          }
+        ],
+        "offset": {
+          "x": 1080,
+          "y": 3870
+        }
+      }
+    },
+    {
+      "name": "respond_with_pantry_spanish",
+      "type": "gather-input-on-call",
+      "transitions": [
+        {
+          "next": "respond_with_pantry_spanish",
+          "event": "keypress"
+        },
+        {
+          "next": "test_repeat_pantry_information_spanish",
+          "event": "speech"
+        },
+        {
+          "next": "test_repeat_pantry_information_spanish",
+          "event": "timeout"
+        }
+      ],
+      "properties": {
+        "voice": "Polly.Conchita",
+        "speech_timeout": "auto",
+        "offset": {
+          "x": 1070,
+          "y": 4080
+        },
+        "loop": 1,
+        "hints": "repetir, otra opción, continuar",
+        "finish_on_key": "#",
+        "say": "Encontré {{flow.variables.pantry_name}}. Se encuentra en {{flow.variables.pantry_address}} en {{flow.variables.pantry_city}}. Está abierto {{flow.variables.pantry_day}} desde {{flow.variables.pantry_open}} hasta {{flow.variables.pantry_close}}. Está {{flow.variables.pantry_distance}} de distancia. . . . . . . . . . . . . . Diga repetir, otra opción, o continuar.",
+        "language": "es-ES",
+        "stop_gather": false,
+        "gather_language": "es-MX",
+        "profanity_filter": "false",
+        "timeout": 5
+      }
+    },
+    {
+      "name": "gather_calfresh_spanish",
+      "type": "gather-input-on-call",
+      "transitions": [
+        {
+          "next": "gather_calfresh_spanish",
+          "event": "keypress"
+        },
+        {
+          "next": "decide_calfresh_spanish",
+          "event": "speech"
+        },
+        {
+          "next": "gather_calfresh_spanish",
+          "event": "timeout"
+        }
+      ],
+      "properties": {
+        "voice": "Polly.Conchita",
+        "speech_timeout": "auto",
+        "offset": {
+          "x": 1770,
+          "y": 1520
+        },
+        "loop": 1,
+        "finish_on_key": "#",
+        "say": "Los miembros de nuestro equipo de Food Bank pueden ayudarlo a solicitar los beneficios de CalFresh Food. Si se aprueba, recibirá una tarjeta de débito, llamada EBT, que puede usar para comprar comestibles. ¿Estás interesado en aprender más? Diga sí o no.",
+        "language": "es-ES",
+        "stop_gather": false,
+        "gather_language": "es-MX",
+        "profanity_filter": "false",
+        "timeout": 5
+      }
+    },
+    {
+      "name": "test_repeat_pantry_information_spanish",
+      "type": "split-based-on",
+      "transitions": [
+        {
+          "next": "calfresh_message_spanish",
+          "event": "noMatch"
+        },
+        {
+          "next": "respond_with_pantry_spanish",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value equal_to repetir",
+              "arguments": [
+                "{{widgets.respond_with_pantry_spanish.SpeechResult | downcase}}"
+              ],
+              "type": "contains",
+              "value": "repetir"
+            }
+          ]
+        },
+        {
+          "next": "set_pantry_index_spanish",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value equal_to otra opcion",
+              "arguments": [
+                "{{widgets.respond_with_pantry_spanish.SpeechResult | downcase}}"
+              ],
+              "type": "regex",
+              "value": "otra opci(o|ó)n"
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "input": "{{widgets.respond_with_pantry_spanish.SpeechResult | downcase}}",
+        "offset": {
+          "x": 990,
+          "y": 4290
+        }
+      }
+    },
+    {
+      "name": "call_accfb_spanish",
+      "type": "say-play",
+      "transitions": [
+        {
+          "next": "gather_repeat_helpline_spanish",
+          "event": "audioComplete"
+        }
+      ],
+      "properties": {
+        "voice": "Polly.Conchita",
+        "offset": {
+          "x": 1590,
+          "y": 4320
+        },
+        "loop": 1,
+        "say": "Para ubicaciones adicionales o para hablar con uno de nuestros operadores de la Línea de ayuda alimentaria, llame al 510-635-3663. El horario de la línea de ayuda es de lunes a viernes de 9 a.m. a 4 p.m.",
+        "language": "es-ES"
+      }
+    },
+    {
+      "name": "calfresh_message_spanish",
+      "type": "say-play",
+      "transitions": [
+        {
+          "next": "gather_repeat_calfresh_spanish",
+          "event": "audioComplete"
+        }
+      ],
+      "properties": {
+        "voice": "Polly.Conchita",
+        "offset": {
+          "x": 1020,
+          "y": 4470
+        },
+        "loop": 1,
+        "say": "Podemos ayudarlo a solicitar CalFresh Food por teléfono. Por favor llámenos al 1-877-847-3663.",
+        "language": "es-ES"
+      }
+    },
+    {
+      "name": "gather_repeat_helpline_spanish",
+      "type": "gather-input-on-call",
+      "transitions": [
+        {
+          "next": "gather_repeat_helpline_spanish",
+          "event": "keypress"
+        },
+        {
+          "next": "decide_repeat_helpline_spanish",
+          "event": "speech"
+        },
+        {
+          "next": "gather_repeat_helpline_spanish",
+          "event": "timeout"
+        }
+      ],
+      "properties": {
+        "voice": "Polly.Conchita",
+        "speech_timeout": "auto",
+        "offset": {
+          "x": 1590,
+          "y": 4520
+        },
+        "loop": 1,
+        "finish_on_key": "#",
+        "say": "¿Quieres que repita eso?",
+        "language": "es-ES",
+        "stop_gather": false,
+        "gather_language": "es-MX",
+        "profanity_filter": "false",
+        "timeout": 5
+      }
+    },
+    {
+      "name": "decide_repeat_helpline_spanish",
+      "type": "split-based-on",
+      "transitions": [
+        {
+          "next": "say_goodbye_spanish",
+          "event": "noMatch"
+        },
+        {
+          "next": "call_accfb_spanish",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value equal_to si",
+              "arguments": [
+                "{{widgets.gather_repeat_helpline_spanish.SpeechResult | downcase}}"
+              ],
+              "type": "regex",
+              "value": ".*(s(i|í)|y).*"
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "input": "{{widgets.gather_repeat_helpline_spanish.SpeechResult | downcase}}",
+        "offset": {
+          "x": 1590,
+          "y": 4730
+        }
+      }
+    },
+    {
+      "name": "say_goodbye_spanish",
+      "type": "say-play",
+      "transitions": [
+        {
+          "event": "audioComplete"
+        }
+      ],
+      "properties": {
+        "voice": "Polly.Conchita",
+        "offset": {
+          "x": 1350,
+          "y": 5160
+        },
+        "loop": 1,
+        "say": "¡Gracias! Estamos aquí para ayudar. Para obtener más información sobre nuestra organización, visite a c c f b dot org. . . . . . . . . . . . .",
+        "language": "es-ES"
+      }
+    },
+    {
+      "name": "gather_repeat_calfresh_spanish",
+      "type": "gather-input-on-call",
+      "transitions": [
+        {
+          "next": "gather_repeat_calfresh_spanish",
+          "event": "keypress"
+        },
+        {
+          "next": "decide_repeat_calfresh_spanish",
+          "event": "speech"
+        },
+        {
+          "next": "gather_repeat_calfresh_spanish",
+          "event": "timeout"
+        }
+      ],
+      "properties": {
+        "voice": "Polly.Conchita",
+        "speech_timeout": "auto",
+        "offset": {
+          "x": 1010,
+          "y": 4670
+        },
+        "loop": 1,
+        "finish_on_key": "#",
+        "say": "¿Quieres que repita eso?",
+        "language": "es-ES",
+        "stop_gather": false,
+        "gather_language": "es-MX",
+        "profanity_filter": "false",
+        "timeout": 5
+      }
+    },
+    {
+      "name": "decide_repeat_calfresh_spanish",
+      "type": "split-based-on",
+      "transitions": [
+        {
+          "next": "say_goodbye_spanish",
+          "event": "noMatch"
+        },
+        {
+          "next": "calfresh_message_spanish",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value equal_to si",
+              "arguments": [
+                "{{widgets.gather_repeat_calfresh_spanish.SpeechResult | downcase}}"
+              ],
+              "type": "regex",
+              "value": ".*(s(i|í)|y).*"
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "input": "{{widgets.gather_repeat_calfresh_spanish.SpeechResult | downcase}}",
+        "offset": {
+          "x": 940,
+          "y": 4890
+        }
+      }
+    },
+    {
+      "name": "decide_calfresh_spanish",
+      "type": "split-based-on",
+      "transitions": [
+        {
+          "next": "say_goodbye_spanish",
+          "event": "noMatch"
+        },
+        {
+          "next": "calfresh_message_spanish",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value regex si",
+              "arguments": [
+                "{{widgets.gather_calfresh_spanish.SpeechResult | downcase}}"
+              ],
+              "type": "regex",
+              "value": ".*s(i|í).*"
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "input": "{{widgets.gather_calfresh_spanish.SpeechResult | downcase}}",
+        "offset": {
+          "x": 1880,
+          "y": 1860
+        }
+      }
+    },
+    {
+      "name": "record_referral_voice_english",
+      "type": "make-http-request",
+      "transitions": [
+        {
+          "next": "respond_with_pantry_english",
+          "event": "success"
+        },
+        {
+          "next": "respond_with_pantry_english",
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": 530,
+          "y": 3790
+        },
+        "method": "POST",
+        "content_type": "application/x-www-form-urlencoded;charset=utf-8",
+        "parameters": [
+          {
+            "value": "{{flow.variables.pantry_id}}",
+            "key": "site_id"
+          },
+          {
+            "value": "1",
+            "key": "count"
+          }
+        ],
+        "url": "https://accfb-foodnow.herokuapp.com/record-referral"
+      }
+    },
+    {
+      "name": "record_referral_sms_english",
+      "type": "make-http-request",
+      "transitions": [
+        {
+          "next": "send_pantry_sms_english",
+          "event": "success"
+        },
+        {
+          "next": "send_pantry_sms_english",
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -700,
+          "y": 2980
+        },
+        "method": "POST",
+        "content_type": "application/x-www-form-urlencoded;charset=utf-8",
+        "parameters": [
+          {
+            "value": "{{flow.variables.pantry_id}}",
+            "key": "site_id"
+          },
+          {
+            "value": "1",
+            "key": "count"
+          }
+        ],
+        "url": "https://accfb-foodnow.herokuapp.com/record-referral"
+      }
+    },
+    {
+      "name": "record_referral_voice_spanish",
+      "type": "make-http-request",
+      "transitions": [
+        {
+          "next": "respond_with_pantry_spanish",
+          "event": "success"
+        },
+        {
+          "next": "respond_with_pantry_spanish",
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": 1410,
+          "y": 3900
+        },
+        "method": "POST",
+        "content_type": "application/x-www-form-urlencoded;charset=utf-8",
+        "parameters": [
+          {
+            "value": "{{flow.variables.pantry_id}}",
+            "key": "site_id"
+          },
+          {
+            "value": "1",
+            "key": "count"
+          }
+        ],
+        "url": "https://accfb-foodnow.herokuapp.com/record-referral"
+      }
+    },
+    {
+      "name": "decide_need_food_sms_spanish",
+      "type": "split-based-on",
+      "transitions": [
+        {
+          "next": "send_calfresh_sms_spanish",
+          "event": "noMatch"
+        },
+        {
+          "next": "gather_city_sms_spanish",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value regex sí|si",
+              "arguments": [
+                "{{widgets.gather_need_food_spanish_sms.inbound.Body | downcase | strip}}"
+              ],
+              "type": "regex",
+              "value": "(sí|si)"
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "input": "{{widgets.gather_need_food_spanish_sms.inbound.Body | downcase | strip}}",
+        "offset": {
+          "x": -2070,
+          "y": 1080
+        }
+      }
+    },
+    {
+      "name": "gather_city_sms_spanish",
+      "type": "send-and-wait-for-reply",
+      "transitions": [
+        {
+          "next": "valid_http_city_sms_spanish",
+          "event": "incomingMessage"
+        },
+        {
+          "event": "timeout"
+        },
+        {
+          "event": "deliveryFailure"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -2050,
+          "y": 1280
+        },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "body": "Puedo ayudarte a encontrar comida. ¿En que ciudad estas?",
+        "timeout": 3600
+      }
+    },
+    {
+      "name": "valid_http_city_sms_spanish",
+      "type": "make-http-request",
+      "transitions": [
+        {
+          "next": "decide_valid_city_sms_spanish",
+          "event": "success"
+        },
+        {
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -2050,
+          "y": 1470
+        },
+        "method": "GET",
+        "content_type": "application/x-www-form-urlencoded;charset=utf-8",
+        "parameters": [
+          {
+            "value": "{{widgets.gather_city_sms_spanish.inbound.Body  | downcase | strip}}",
+            "key": "city"
+          }
+        ],
+        "url": "https://accfb-foodnow.herokuapp.com/validate-city"
+      }
+    },
+    {
+      "name": "decide_valid_city_sms_spanish",
+      "type": "split-based-on",
+      "transitions": [
+        {
+          "next": "send_out_of_area_sms_spanish",
+          "event": "noMatch"
+        },
+        {
+          "next": "gather_address_sms_spanish",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value equal_to True",
+              "arguments": [
+                "{{widgets.valid_http_city_sms_spanish.parsed.valid_city}}"
+              ],
+              "type": "equal_to",
+              "value": "True"
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "input": "{{widgets.valid_http_city_sms_spanish.parsed.valid_city}}",
+        "offset": {
+          "x": -2090,
+          "y": 1640
+        }
+      }
+    },
+    {
+      "name": "send_out_of_area_sms_spanish",
+      "type": "send-message",
+      "transitions": [
+        {
+          "event": "sent"
+        },
+        {
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -2450,
+          "y": 1650
+        },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "to": "{{contact.channel.address}}",
+        "body": "Parece que no eres residente del condado de Alameda. ¡Eso está bien! Para encontrar un banco de alimentos en su área, vaya a http://www.cafoodbanks.org/find-food-assistance"
+      }
+    },
+    {
+      "name": "send_calfresh_sms_spanish",
+      "type": "send-message",
+      "transitions": [
+        {
+          "event": "sent"
+        },
+        {
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -2440,
+          "y": 1410
+        },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "to": "{{contact.channel.address}}",
+        "body": "Los miembros de nuestro equipo del banco de alimentos pueden ayudarlo a solicitar los beneficios de CalFresh Food. Si se aprueba, recibirá una tarjeta de débito, llamada EBT, que puede usar para comprar comestibles. Podemos ayudarlo a solicitar CalFresh Food por teléfono. Por favor llámenos al 1-877-847-3663."
+      }
+    },
+    {
+      "name": "gather_address_sms_spanish",
+      "type": "send-and-wait-for-reply",
+      "transitions": [
+        {
+          "next": "http_find_pantries_sms_spanish",
+          "event": "incomingMessage"
+        },
+        {
+          "event": "timeout"
+        },
+        {
+          "event": "deliveryFailure"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -2090,
+          "y": 1850
+        },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "body": "¿Cuál es la dirección más cercana?",
+        "timeout": 3600
+      }
+    },
+    {
+      "name": "http_find_pantries_sms_spanish",
+      "type": "make-http-request",
+      "transitions": [
+        {
+          "next": "check_empty_results_sms_spanish",
+          "event": "success"
+        },
+        {
+          "next": "sms_failure_spanish",
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -2090,
+          "y": 2060
+        },
+        "method": "GET",
+        "content_type": "application/x-www-form-urlencoded;charset=utf-8",
+        "parameters": [
+          {
+            "value": "{{widgets.gather_city_sms_spanish.inbound.Body  | downcase | strip}}",
+            "key": "city"
+          },
+          {
+            "value": "{{widgets.gather_address_sms_spanish.inbound.Body  | downcase | strip}}",
+            "key": "address"
+          }
+        ],
+        "url": "https://accfb-foodnow.herokuapp.com/find-pantry"
+      }
+    },
+    {
+      "name": "sms_failure_spanish",
+      "type": "send-message",
+      "transitions": [
+        {
+          "next": "gather_city_sms_spanish",
+          "event": "sent"
+        },
+        {
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -1710,
+          "y": 2060
+        },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "to": "{{contact.channel.address}}",
+        "body": "Sorry, something went wrong. Let us try again."
+      }
+    },
+    {
+      "name": "check_empty_results_sms_spanish",
+      "type": "split-based-on",
+      "transitions": [
+        {
+          "next": "set_pantry_index_sms_spanish",
+          "event": "noMatch"
+        },
+        {
+          "next": "send_no_pantries_sms_spanish",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value equal_to 0",
+              "arguments": [
+                "{{widgets.http_find_pantries_sms_spanish.parsed.sites.size}}"
+              ],
+              "type": "equal_to",
+              "value": "0"
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "input": "{{widgets.http_find_pantries_sms_spanish.parsed.sites.size}}",
+        "offset": {
+          "x": -2100,
+          "y": 2260
+        }
+      }
+    },
+    {
+      "name": "send_no_pantries_sms_spanish",
+      "type": "send-message",
+      "transitions": [
+        {
+          "event": "sent"
+        },
+        {
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -1710,
+          "y": 2320
+        },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "to": "{{contact.channel.address}}",
+        "body": "Lo siento, no pude encontrar ningún sitio de distribución abierto. Para ubicaciones adicionales o para hablar con uno de nuestros operadores de la Línea de ayuda alimentaria, llame al 510-635-3663. El horario de la línea de ayuda es de lunes a viernes de 9 a.m. a 4 p.m."
+      }
+    },
+    {
+      "name": "set_pantry_index_sms_spanish",
+      "type": "set-variables",
+      "transitions": [
+        {
+          "next": "continue_decision_sms_spanish",
+          "event": "next"
+        }
+      ],
+      "properties": {
+        "variables": [
+          {
+            "value": "{% if flow.variables.pantry_index %} {{flow.variables.pantry_index | plus: 1}} {% else %}0{% endif %}",
+            "key": "pantry_index"
+          }
+        ],
+        "offset": {
+          "x": -2090,
+          "y": 2460
+        }
+      }
+    },
+    {
+      "name": "set_pantry_sms_spanish",
+      "type": "set-variables",
+      "transitions": [
+        {
+          "next": "record_referral_sms_spanish",
+          "event": "next"
+        }
+      ],
+      "properties": {
+        "variables": [
+          {
+            "index": "0",
+            "value": "{% assign idx = flow.variables.pantry_index | plus: 0 %}{{ widgets.http_find_pantries_sms_spanish.parsed.sites[idx].site_name}}",
+            "key": "pantry_name"
+          },
+          {
+            "index": "1",
+            "value": "{% assign idx = flow.variables.pantry_index | plus: 0 %}{{ widgets.http_find_pantries_sms_spanish.parsed.sites[idx].site_address}}",
+            "key": "pantry_address"
+          },
+          {
+            "index": "2",
+            "value": "{% assign idx = flow.variables.pantry_index | plus: 0 %}{{ widgets.http_find_pantries_sms_spanish.parsed.sites[idx].site_city}}",
+            "key": "pantry_city"
+          },
+          {
+            "index": "3",
+            "value": "{% assign idx = flow.variables.pantry_index | plus: 0 %}{{ widgets.http_find_pantries_sms_spanish.parsed.sites[idx].site_open}}",
+            "key": "pantry_open"
+          },
+          {
+            "index": "4",
+            "value": "{% assign idx = flow.variables.pantry_index | plus: 0 %}{{ widgets.http_find_pantries_sms_spanish.parsed.sites[idx].site_close}}",
+            "key": "pantry_close"
+          },
+          {
+            "index": "5",
+            "value": "{% assign idx = flow.variables.pantry_index | plus: 0 %}{{ widgets.http_find_pantries_sms_spanish.parsed.sites[idx].distance}}",
+            "key": "pantry_distance"
+          },
+          {
+            "index": "6",
+            "value": "{% assign idx = flow.variables.pantry_index | plus: 0 %}{{ widgets.http_find_pantries_sms_spanish.parsed.sites[idx].site_id}}",
+            "key": "pantry_id"
+          },
+          {
+            "value": "{% assign idx = flow.variables.pantry_index | plus: 0 %}{{ widgets.http_find_pantries_sms_spanish.parsed.sites[idx].day_of_week}}",
+            "key": "pantry_day"
+          }
+        ],
+        "offset": {
+          "x": -2100,
+          "y": 2890
+        }
+      }
+    },
+    {
+      "name": "record_referral_sms_spanish",
+      "type": "make-http-request",
+      "transitions": [
+        {
+          "next": "send_pantry_sms_spanish",
+          "event": "success"
+        },
+        {
+          "next": "send_pantry_sms_spanish",
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -1740,
+          "y": 2890
+        },
+        "method": "POST",
+        "content_type": "application/x-www-form-urlencoded;charset=utf-8",
+        "parameters": [
+          {
+            "value": "{{flow.variables.pantry_id}}",
+            "key": "site_id"
+          },
+          {
+            "value": "1",
+            "key": "count"
+          }
+        ],
+        "url": "https://accfb-foodnow.herokuapp.com/record-referral"
+      }
+    },
+    {
+      "name": "send_pantry_sms_spanish",
+      "type": "send-and-wait-for-reply",
+      "transitions": [
+        {
+          "next": "decide_another_option",
+          "event": "incomingMessage"
+        },
+        {
+          "event": "timeout"
+        },
+        {
+          "event": "deliveryFailure"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -2090,
+          "y": 3080
+        },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "body": "Encontré {{flow.variables.pantry_name}}. Se encuentra en {{flow.variables.pantry_address}} en {{flow.variables.pantry_city}}. Está abierto {{flow.variables.pantry_day}} desde {{flow.variables.pantry_open}} hasta {{flow.variables.pantry_close}}. Está {{flow.variables.pantry_distance}} de distancia. Responda otra opción o continuar.",
+        "timeout": 600
+      }
+    },
+    {
+      "name": "decide_another_option",
+      "type": "split-based-on",
+      "transitions": [
+        {
+          "next": "send_goodbye_sms_spanish",
+          "event": "noMatch"
+        },
+        {
+          "next": "set_pantry_index_sms_spanish",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value regex otra opci(ó|o)n",
+              "arguments": [
+                "{{widgets.send_pantry_sms_spanish.inbound.Body  | downcase | strip}}"
+              ],
+              "type": "regex",
+              "value": "otra opci(ó|o)n"
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "input": "{{widgets.send_pantry_sms_spanish.inbound.Body  | downcase | strip}}",
+        "offset": {
+          "x": -2100,
+          "y": 3280
+        }
+      }
+    },
+    {
+      "name": "continue_decision_sms_english",
+      "type": "split-based-on",
+      "transitions": [
+        {
+          "next": "send_no_pantries_sms_english",
+          "event": "noMatch"
+        },
+        {
+          "next": "set_pantry_sms_english",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value less_than {{widgets.http_find_pantry.parsed.sites.size}}",
+              "arguments": [
+                "{{flow.variables.pantry_index}}"
+              ],
+              "type": "less_than",
+              "value": "{{widgets.http_find_pantries_sms_english.parsed.sites.size}}"
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "input": "{{flow.variables.pantry_index}}",
+        "offset": {
+          "x": -1210,
+          "y": 2720
+        }
+      }
+    },
+    {
+      "name": "continue_decision_sms_spanish",
+      "type": "split-based-on",
+      "transitions": [
+        {
+          "next": "send_no_pantries_sms_spanish",
+          "event": "noMatch"
+        },
+        {
+          "next": "set_pantry_sms_spanish",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value less_than {{widgets.http_find_pantries_sms_spanish.parsed.sites.size}}",
+              "arguments": [
+                "{{flow.variables.pantry_index}}"
+              ],
+              "type": "less_than",
+              "value": "{{widgets.http_find_pantries_sms_spanish.parsed.sites.size}}"
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "input": "{{flow.variables.pantry_index}}",
+        "offset": {
+          "x": -2210,
+          "y": 2650
+        }
+      }
+    },
+    {
+      "name": "send_goodbye_sms_spanish",
+      "type": "send-message",
+      "transitions": [
+        {
+          "event": "sent"
+        },
+        {
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -2070,
+          "y": 3530
+        },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "to": "{{contact.channel.address}}",
+        "body": "¡Gracias! Estamos aquí para ayudar. Para obtener más información sobre nuestra organización, visite accfb.org. También podemos ayudarlo a solicitar CalFresh Food por teléfono. Por favor llámenos al 1-877-847-3663."
+      }
+    }
+  ],
+  "initial_state": "Trigger",
+  "flags": {
+    "allow_concurrent_calls": true
+  }
+}

@@ -41,7 +41,8 @@ if __name__ == '__main__':
     try:
         for call in client.calls.list(start_time_after=last_week):
             try:
-                call.delete()
+                if call.status not in [call.Status.IN_PROGRESS, call.Status.RINGING, call.status.QUEUED]:
+                    call.delete()
             except Exception:
                 log.exception("An exception occurred deleting a call")
     except Exception:

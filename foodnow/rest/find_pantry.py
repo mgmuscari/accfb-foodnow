@@ -74,7 +74,8 @@ class FindPantryResource(Resource):
             'site_close': site.schedules.get(day_of_week).close_time.strftime('%I:%M %p'),
             'day_of_week': display_day,
             'date_open': date.strftime('%y-%m-%d'),
-            'is_drivethru': site.is_drivethru
+            'is_drivethru': site.is_drivethru,
+            'requires_children': site.requires_children
         }
 
     @staticmethod
@@ -98,7 +99,7 @@ class FindPantryResource(Resource):
                 city = request.args.get("city")[:32]
                 address = request.args.get("address")[:128]
                 language = request.args.get("language", "en_US")[:5]
-                has_children = FindPantryResource.parse_has_children(request.args.get("has_children"), "no")[:5]
+                has_children = FindPantryResource.parse_has_children(request.args.get("has_children", "no")[:5])
                 try:
                     formatted_address = '{}, {}, {}'.format(address, city, 'CA')
                     gmaps = googlemaps.Client(key=google_api_key)

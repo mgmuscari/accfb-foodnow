@@ -29,7 +29,9 @@ class PostgresDistributionSiteDao(object):
                         'City': data.get('city'),
                         'Zipcode': data.get('zip'),
                         'OpenDate': data.get('open_date'),
-                        'CloseDate': data.get('close_date')
+                        'CloseDate': data.get('close_date'),
+                        'RequiresChildren': data.get('requires_children'),
+                        'IsDrivethru': data.get('is_drivethru')
                     }
                 )
                 site.set_location(data['lat'], data['lng'])
@@ -70,14 +72,14 @@ class PostgresDistributionSiteDao(object):
     def find_open_sites_on_day(self, lat, lng, date, has_children=False, at_hour=None, num_sites=3):
         weekday = date.strftime('%A')
         select = 'select {} from accfb.distribution_sites as ds inner join accfb.hours as hrs on ds.id=hrs.site_id {} {} {} {} {}'
-        fields = 'ds.id as ID, ds.name as Name, ds.address as Address, ds.city as City, ds.zip as Zip, ds.requires_children as RequiresChildren, st_x(ds.location::geometry) as Longitude, st_y(ds.location::geometry) as Latitude, ds.open_date as OpenDate, ds.close_date as CloseDate, st_distance(st_point(%(lng)s, %(lat)s)::geography, location) as distance'
+        fields = 'ds.id as ID, ds.name as Name, ds.address as Address, ds.city as City, ds.zip as Zip, ds.requires_children as RequiresChildren, ds.is_drivethru as IsDrivethru, st_x(ds.location::geometry) as Longitude, st_y(ds.location::geometry) as Latitude, ds.open_date as OpenDate, ds.close_date as CloseDate, st_distance(st_point(%(lng)s, %(lat)s)::geography, location) as distance'
         where = 'where ds.open_date <= %(today)s and ds.close_date > %(today)s and hrs.day = %(weekday)s'
         and_hours = ''
         and_has_children = ''
         if at_hour is not None:
             and_hours = 'and hrs.close_time > %(open_at)s'
         if not has_children:
-            and_has_children = 'and requires_children==False'
+            and_has_children = 'and requires_children=False'
         order = 'order by distance asc'
         limit = 'limit %(num_sites)s'
         query = select.format(fields, where, and_hours, and_has_children, order, limit)
@@ -110,8 +112,8 @@ class PostgresDistributionSiteDao(object):
                     "CloseDate": site_data.get("closedate"),
                     "Latitude": site_data.get("latitude"),
                     "Longitude": site_data.get('longitude'),
-                    "RequiresChildren": site_data.get('requires_children'),
-                    "IsDrivethru": site_data.get('is_drivethru')
+                    "RequiresChildren": site_data.get('requireschildren'),
+                    "IsDrivethru": site_data.get('isdrivethru')
                 })
                 ds.distance = site_data.get('distance')
                 ds.schedules = schedule_dao.get_site_schedules(ds.id)

@@ -75,6 +75,15 @@ class FindPantryResource(Resource):
             'date_open': date.strftime('%y-%m-%d')
         }
 
+    @staticmethod
+    def find_geocodes_in_city(geocode_results, city):
+        filtered_results = []
+        for result in geocode_results:
+            locality_ac = next(filter(lambda ac: 'locality' in ac['types'], result['address_components']), None)
+            if locality_ac is not None and locality_ac['long_name'].lower() == city.lower():
+                filtered_results.append(result)
+        return filtered_results
+
     def get(self):
         google_api_key = os.environ.get("GOOGLE_API_TOKEN")
         pgclient = get_postgres_client()
@@ -86,9 +95,11 @@ class FindPantryResource(Resource):
                 try:
                     formatted_address = '{}, {}, {}'.format(address, city, 'CA')
                     gmaps = googlemaps.Client(key=google_api_key)
-                    geocode = gmaps.geocode(formatted_address, components={'locality': city})
+                    geocode_results = gmaps.geocode(formatted_address, components={'locality': city})
+                    filtered_results = FindPantryResource.find_geocodes_in_city(geocode_results, city)
+                    geocode = filtered_results[0]
                     logging.debug(str(geocode))
-                    geolocation = geocode[0].get('geometry').get('location')
+                    geolocation = geocode.get('geometry').get('location')
                 except (ApiError, Timeout, TransportError) as e:
                     logging.exception("Encountered an exception while geocoding the user's address")
                     return make_response("An error occurred", 500)

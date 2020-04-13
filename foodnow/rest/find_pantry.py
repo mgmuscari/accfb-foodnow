@@ -72,7 +72,8 @@ class FindPantryResource(Resource):
             'site_city': site.city,
             'site_open': site.schedules.get(day_of_week).open_time.strftime('%I:%M %p'),
             'site_close': site.schedules.get(day_of_week).close_time.strftime('%I:%M %p'),
-            'day_of_week': display_day
+            'day_of_week': display_day,
+            'date_open': date.strftime('%y-%m-%d')
         }
 
     def get(self):

@@ -41,7 +41,7 @@ def add_header(r):
 def verify_request():
     if current_app.config['AUTH']:
         try:
-            twilio_signature = request.headers['X-Twilio-Signature']
+            twilio_signature = request.headers.get('X-Twilio-Signature', None)
             twilio_auth_token = os.environ.get('TWILIO_AUTH_TOKEN')
             validator = RequestValidator(twilio_auth_token)
             url = request.url

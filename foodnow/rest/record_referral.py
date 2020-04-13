@@ -12,14 +12,18 @@ class RecordReferralResource(Resource):
     def post(self):
         pgclient = get_postgres_client()
         try:
-            now = datetime.datetime.now(tz=pytz.timezone("America/Los_Angeles")).date()
+            date = request.form.get('date')
+            if date is not None:
+                date = datetime.datetime.strptime(date, '%y-%m-%d')
+            else:
+                date = datetime.datetime.now(tz=pytz.timezone("America/Los_Angeles")).date()
             site_id = request.form.get('site_id', None)
             count = request.form.get('count', 1)
             if site_id is not None:
                 distribution_site_dao = PostgresDistributionSiteDao(pgclient)
                 site = distribution_site_dao.get_site(site_id)
                 if site is not None:
-                    referral = Referral(site, now, count)
+                    referral = Referral(site, date, count)
                     referral_dao = PostgresReferralDao(pgclient)
                     referral_dao.increment_referral(referral)
         finally:

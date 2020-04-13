@@ -14,8 +14,9 @@ class ValidCityResource(Resource):
             city = request.args.get("city")
             pgclient = get_postgres_client()
             try:
-                if ValidCityResource.valid_city(pgclient, city):
-                    return jsonify({"valid_city": True, "city": city})
+                found_city = ValidCityResource.valid_city(pgclient, city)
+                if found_city is not None:
+                    return jsonify({"valid_city": True, "city": found_city})
                 else:
                     return jsonify({"valid_city": False, "city": city})
             finally:
@@ -28,9 +29,10 @@ class ValidCityResource(Resource):
     @staticmethod
     def valid_city(pgclient, city):
         city = city.strip()
-        select = 'select * from accfb.cities where lower(name)=lower(%(city)s)'
+        select = 'select name from accfb.cities where levenshtein(lower(%(city)s), lower(name)) < 3 order by levenshtein(lower(%(city)s), lower(name)) asc'
         with pgclient.cursor() as cursor:
             cursor.execute(select, {'city': city})
             row = cursor.fetchone()
-            return row is not None
-        return False
+            if row is not None:
+                return row[0]
+        return None

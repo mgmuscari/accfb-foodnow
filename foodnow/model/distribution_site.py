@@ -18,6 +18,8 @@ class DistributionSite(object):
             self.close_date = kwargs.get("CloseDate")
         else:
             self.close_date = datetime.strptime(kwargs.get("CloseDate"), '%Y-%m-%d')
+        self.requires_children = kwargs.get("RequiresChildren")
+        self.is_drivethru = kwargs.get("IsDrivethru")
         self.latitude = kwargs.get("Latitude")
         self.longitude = kwargs.get("Longitude")
         self.distance = None

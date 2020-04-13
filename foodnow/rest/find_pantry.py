@@ -12,6 +12,7 @@ import math
 from fractions import Fraction
 import pytz
 import logging
+import re
 
 
 class FindPantryResource(Resource):
@@ -72,7 +73,8 @@ class FindPantryResource(Resource):
             'site_open': site.schedules.get(day_of_week).open_time.strftime('%I:%M %p'),
             'site_close': site.schedules.get(day_of_week).close_time.strftime('%I:%M %p'),
             'day_of_week': display_day,
-            'date_open': date.strftime('%y-%m-%d')
+            'date_open': date.strftime('%y-%m-%d'),
+            'is_drivethru': site.is_drivethru
         }
 
     @staticmethod
@@ -84,14 +86,19 @@ class FindPantryResource(Resource):
                 filtered_results.append(result)
         return filtered_results
 
+    @staticmethod
+    def parse_has_children(value):
+        return re.search('(s(i|í)|y(es)?)', value) is not None
+
     def get(self):
         google_api_key = os.environ.get("GOOGLE_API_TOKEN")
         pgclient = get_postgres_client()
         try:
             with pgclient:
-                city = request.args.get("city")
-                address = request.args.get("address")
-                language = request.args.get("language", "en_US")
+                city = request.args.get("city")[:32]
+                address = request.args.get("address")[:128]
+                language = request.args.get("language", "en_US")[:5]
+                has_children = FindPantryResource.parse_has_children(request.args.get("has_children"), "no")[:5]
                 try:
                     formatted_address = '{}, {}, {}'.format(address, city, 'CA')
                     gmaps = googlemaps.Client(key=google_api_key)
@@ -110,10 +117,10 @@ class FindPantryResource(Resource):
                 day_after = today + datetime.timedelta(days=2)
                 three_days = today + datetime.timedelta(days=3)
 
-                sites_today = distribution_site_dao.find_open_sites_now(geolocation['lat'], geolocation['lng'])
-                sites_tomorrow = distribution_site_dao.find_open_sites_on_day(geolocation['lat'], geolocation['lng'], tomorrow)
-                sites_day_after = distribution_site_dao.find_open_sites_on_day(geolocation['lat'], geolocation['lng'], day_after)
-                sites_three_days = distribution_site_dao.find_open_sites_on_day(geolocation['lat'], geolocation['lng'], three_days)
+                sites_today = distribution_site_dao.find_open_sites_now(geolocation['lat'], geolocation['lng'], has_children=has_children)
+                sites_tomorrow = distribution_site_dao.find_open_sites_on_day(geolocation['lat'], geolocation['lng'], tomorrow, has_children=has_children)
+                sites_day_after = distribution_site_dao.find_open_sites_on_day(geolocation['lat'], geolocation['lng'], day_after, has_children=has_children)
+                sites_three_days = distribution_site_dao.find_open_sites_on_day(geolocation['lat'], geolocation['lng'], three_days, has_children=has_children)
 
                 site_responses_today = [FindPantryResource.site_response(site_summary, today, language) for site_summary in sites_today]
                 site_responses_tomorrow = [FindPantryResource.site_response(site_summary, tomorrow, language) for site_summary in sites_tomorrow]

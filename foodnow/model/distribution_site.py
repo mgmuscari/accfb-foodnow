@@ -1,6 +1,5 @@
 from datetime import datetime, date
 
-from foodnow.model.schedule import Schedule
 
 class DistributionSite(object):
 

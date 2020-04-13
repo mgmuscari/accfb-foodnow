@@ -13,7 +13,6 @@ from fractions import Fraction
 import pytz
 import logging
 
-log = logging.getLogger(__name__)
 
 class FindPantryResource(Resource):
 
@@ -88,10 +87,10 @@ class FindPantryResource(Resource):
                     formatted_address = '{}, {}, {}'.format(address, city, 'CA')
                     gmaps = googlemaps.Client(key=google_api_key)
                     geocode = gmaps.geocode(formatted_address)
-                    log.debug(str(geocode))
+                    logging.debug(str(geocode))
                     geolocation = geocode[0].get('geometry').get('location')
                 except (ApiError, Timeout, TransportError) as e:
-                    log.exception("Encountered an exception while geocoding the user's address")
+                    logging.exception("Encountered an exception while geocoding the user's address")
                     return make_response("An error occurred", 500)
 
                 distribution_site_dao = PostgresDistributionSiteDao(pgclient)
@@ -120,7 +119,7 @@ class FindPantryResource(Resource):
                 else:
                     return make_response("No sites were found", 404)
         except Exception as e:
-            log.exception("Encountered an exception while finding a pantry")
+            logging.exception("Encountered an exception while finding a pantry")
             return make_response("An error occurred", 500)
         finally:
             pgclient.close()

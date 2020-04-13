@@ -4,9 +4,6 @@ from flask import jsonify
 from foodnow.db import get_postgres_client
 import logging
 
-log = logging.getLogger(__name__)
-
-
 class ValidCityResource(Resource):
 
     def get(self):
@@ -23,7 +20,7 @@ class ValidCityResource(Resource):
                 pgclient.close()
 
         except Exception as e:
-            log.exception("An error occurred validating the user's city")
+            logging.exception("An error occurred validating the user's city")
             return make_response("An error occurred", 500)
 
     @staticmethod

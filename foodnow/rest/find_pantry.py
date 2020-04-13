@@ -86,7 +86,7 @@ class FindPantryResource(Resource):
                 try:
                     formatted_address = '{}, {}, {}'.format(address, city, 'CA')
                     gmaps = googlemaps.Client(key=google_api_key)
-                    geocode = gmaps.geocode(formatted_address)
+                    geocode = gmaps.geocode(formatted_address, components={'locality': city})
                     logging.debug(str(geocode))
                     geolocation = geocode[0].get('geometry').get('location')
                 except (ApiError, Timeout, TransportError) as e:

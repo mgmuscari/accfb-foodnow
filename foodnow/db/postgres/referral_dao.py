@@ -8,7 +8,7 @@ class PostgresReferralDao(object):
         self.pg_client = pg_client
 
     def increment_referral(self, referral):
-        insert = 'insert into accfb.referrals (site_id, referral_date, channel, language, referrals) ' \
+        insert = 'insert into accfb.referrals (site_id, channel, language, referral_date, referrals) ' \
                  'values (%(site_id)s, %(channel)s, %(language)s, %(referral_date)s, %(count)s) {}'
         conflict = 'on conflict (site_id, referral_date) do update set referrals=accfb.referrals.referrals + %(count)s'
         upsert = insert.format(conflict)

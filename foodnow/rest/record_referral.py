@@ -37,7 +37,7 @@ class RecordReferralResource(Resource):
                 distribution_site_dao = PostgresDistributionSiteDao(pgclient)
                 site = distribution_site_dao.get_site(site_id)
                 if site is not None:
-                    referral = Referral(site, date, count)
+                    referral = Referral(site, date, channel, language, count)
                     referral_dao = PostgresReferralDao(pgclient)
                     referral_dao.increment_referral(referral)
         finally:

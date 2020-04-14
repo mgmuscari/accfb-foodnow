@@ -3,6 +3,7 @@ from flask import request, app, make_response
 from flask import jsonify
 from foodnow.db.postgres.distribution_site_dao import PostgresDistributionSiteDao
 from foodnow.model.schedule import Schedule
+from foodnow.util import truthy_string, readable_distance
 import os
 import googlemaps
 from googlemaps.exceptions import Timeout, TransportError, ApiError
@@ -15,46 +16,8 @@ import logging
 import re
 
 
-class FindPantryResource(Resource):
 
-    @staticmethod
-    def readable_distance(meters, language):
-        total_distance = (meters / 1000.0)
-        unit = 'kilometro'
-        if language == 'en_US':
-            total_distance = total_distance * 0.621371
-            unit = 'mile'
-        unit_distance = math.floor(total_distance)
-        unit_fraction = total_distance - unit_distance
-        fraction = Fraction(int(round(unit_fraction * 4)), 4)
-        fraction_text = ''
-        if fraction.numerator > 0 and fraction.denominator > 1:
-            if language == 'en_US':
-                denoms = {2: 'half', 4: 'quarter'}
-            else:
-                denoms = {2: 'media', 4: 'cuarto'}
-            fraction_text = '{} {}'.format(fraction.numerator, denoms[fraction.denominator])
-            if fraction.numerator > 1:
-                fraction_text = fraction_text + 's'
-        if unit_distance == 0:
-            if len(fraction_text) > 0:
-                if language == 'en_US':
-                    return fraction_text + ' of a ' + unit
-                else:
-                    return fraction_text + ' de ' + unit
-            else:
-                if language == 'en_US':
-                    return '1 quarter of a mile'
-                else:
-                    return '1 cuarto de kilometro'
-        if unit_distance > 1:
-            unit = unit + 's'
-        if len(fraction_text) > 0:
-            if language == 'en_US':
-                fraction_text = ' and ' + fraction_text
-            else:
-                fraction_text = ' y ' + fraction_text
-        return str(int(unit_distance)) + fraction_text + ' ' + unit
+class FindPantryResource(Resource):
 
     @staticmethod
     def site_response(site, date, language):
@@ -66,14 +29,14 @@ class FindPantryResource(Resource):
             raise Exception('Site is not open on this day')
         return {
             'site_id': site.id,
-            'distance': FindPantryResource.readable_distance(site.distance, language),
+            'distance': readable_distance(site.distance, language),
             'site_name': site.name,
             'site_address': site.address,
             'site_city': site.city,
             'site_open': site.schedules.get(day_of_week).open_time.strftime('%I:%M %p'),
             'site_close': site.schedules.get(day_of_week).close_time.strftime('%I:%M %p'),
             'day_of_week': display_day,
-            'date_open': date.strftime('%y-%m-%d'),
+            'date_open': date.strftime('%Y-%m-%d'),
             'is_drivethru': site.is_drivethru,
             'requires_children': site.requires_children
         }
@@ -87,10 +50,6 @@ class FindPantryResource(Resource):
                 filtered_results.append(result)
         return filtered_results
 
-    @staticmethod
-    def parse_has_children(value):
-        return re.search('(s(i|í)|y(es)?)', value) is not None
-
     def get(self):
         google_api_key = os.environ.get("GOOGLE_API_TOKEN")
         pgclient = get_postgres_client()
@@ -99,7 +58,7 @@ class FindPantryResource(Resource):
                 city = request.args.get("city")[:32]
                 address = request.args.get("address")[:128]
                 language = request.args.get("language", "en_US")[:5]
-                has_children = FindPantryResource.parse_has_children(request.args.get("has_children", "no")[:5])
+                has_children = truthy_string(request.args.get("has_children", "no")[:5])
                 try:
                     formatted_address = '{}, {}, {}'.format(address, city, 'CA')
                     gmaps = googlemaps.Client(key=google_api_key)

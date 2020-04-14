@@ -10,17 +10,19 @@ class PostgresReferralDao(object):
         self.pg_client = pg_client
 
     def increment_referral(self, referral):
-        insert = 'insert into accfb.referrals (site_id, referral_date, referrals) values (%(site_id)s, %(referral_date)s, %(count)s) {}'
+        insert = 'insert into accfb.referrals (site_id, referral_date, channel, language, referrals) ' \
+                 'values (%(site_id)s, %(channel)s, %(language)s, %(referral_date)s, %(count)s) {}'
         conflict = 'on conflict (site_id, referral_date) do update set referrals=accfb.referrals.referrals + %(count)s'
         upsert = insert.format(conflict)
         with self.pg_client.cursor() as cursor:
             cursor.execute(upsert, {'site_id': referral.site.id, 'referral_date': referral.date, 'count': referral.count})
         self.pg_client.commit()
 
-    def get_referral(self, site, date):
-        select = 'select * from accfb.referrals where site_id=%(site_id)s and referral_date=%(date)s'
+    def get_referral(self, site, channel, language, date):
+        select = 'select * from accfb.referrals where site_id=%(site_id)s and referral_date=%(date)s and channel=%(channel)s ' \
+                 'and language=%(language)s'
         with self.pg_client.cursor() as cursor:
-            cursor.execute(select, {'site_id': site.id, 'date': date})
+            cursor.execute(select, {'site_id': site.id, 'date': date, 'channel': channel, 'language': language})
             columns = [col.name for col in cursor.description]
             row = cursor.fetchone()
             if row is not None:

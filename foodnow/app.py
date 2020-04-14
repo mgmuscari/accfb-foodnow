@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_restful import Api
 from flask_restful import abort
+from werkzeug.urls import iri_to_uri
 from flask import request, current_app
 from foodnow.rest.find_pantry import FindPantryResource
 from foodnow.rest.validate_city import ValidCityResource
@@ -44,7 +45,7 @@ def verify_request():
             twilio_signature = request.headers.get('X-Twilio-Signature', None)
             twilio_auth_token = os.environ.get('TWILIO_AUTH_TOKEN')
             validator = RequestValidator(twilio_auth_token)
-            url = request.url
+            url = iri_to_uri(request.url)
             content = request.form
             logging.debug(url)
             logging.debug(content)

@@ -20,7 +20,7 @@ class FindPantryResource(Resource):
     @staticmethod
     def readable_distance(meters, language):
         total_distance = (meters / 1000.0)
-        unit = 'kilómetro'
+        unit = 'kilometro'
         if language == 'en_US':
             total_distance = total_distance * 0.621371
             unit = 'mile'
@@ -46,7 +46,7 @@ class FindPantryResource(Resource):
                 if language == 'en_US':
                     return '1 quarter of a mile'
                 else:
-                    return '1 cuarto de kilómetro'
+                    return '1 cuarto de kilometro'
         if unit_distance > 1:
             unit = unit + 's'
         if len(fraction_text) > 0:

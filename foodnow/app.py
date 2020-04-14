@@ -46,6 +46,8 @@ def verify_request():
             validator = RequestValidator(twilio_auth_token)
             url = request.url
             content = request.form
+            logging.debug(url)
+            logging.debug(content)
             if not validator.validate(url, content, twilio_signature):
                 abort(401)
         except Exception as e:

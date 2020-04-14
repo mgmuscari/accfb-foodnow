@@ -1,8 +1,6 @@
-from foodnow.model.distribution_site import DistributionSite
 from foodnow.db.postgres.distribution_site_dao import PostgresDistributionSiteDao
-import pytz
-import datetime
 from foodnow.model.referral import Referral
+
 
 class PostgresReferralDao(object):
 
@@ -15,7 +13,11 @@ class PostgresReferralDao(object):
         conflict = 'on conflict (site_id, referral_date) do update set referrals=accfb.referrals.referrals + %(count)s'
         upsert = insert.format(conflict)
         with self.pg_client.cursor() as cursor:
-            cursor.execute(upsert, {'site_id': referral.site.id, 'referral_date': referral.date, 'count': referral.count})
+            cursor.execute(upsert, {'site_id': referral.site.id,
+                                    'referral_date': referral.date,
+                                    'channel': referral.channel,
+                                    'language': referral.language,
+                                    'count': referral.count})
         self.pg_client.commit()
 
     def get_referral(self, site, channel, language, date):

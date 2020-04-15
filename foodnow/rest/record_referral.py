@@ -7,6 +7,7 @@ from foodnow.util import truthy_string, translate_number_string
 import datetime
 import pytz
 import re
+import logging
 from text_to_num import text2num
 
 
@@ -20,7 +21,7 @@ class RecordReferralResource(Resource):
             channel = request.form.get('channel')
             count = request.form.get('count', '1')
             language = request.form.get('language', 'en_US')
-            if re.fullmatch('[0-9]+', count) is not None:
+            if re.fullmatch('[0-9]+', count) is None:
                 # Oh look, the user responded with number words or something
                 # This will only work for english. Otherwise we default to 1
                 # This is to avoid having to actually make a call to the google translate API just to parse some numbers
@@ -40,5 +41,7 @@ class RecordReferralResource(Resource):
                     referral = Referral(site, date, channel, language, count)
                     referral_dao = PostgresReferralDao(pgclient)
                     referral_dao.increment_referral(referral)
+        except Exception:
+            logging.exception('Encountered an exception recording a referral')
         finally:
             pgclient.close()

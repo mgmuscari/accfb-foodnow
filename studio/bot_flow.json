@@ -339,7 +339,7 @@
             "key": "city"
           }
         ],
-        "url": "https://accfb-foodnow.herokuapp.com/validate-city"
+        "url": "https://accfb-foodnow-stage.herokuapp.com/validate-city"
       }
     },
     {
@@ -673,7 +673,7 @@
             "key": "has_children"
           }
         ],
-        "url": "https://accfb-foodnow.herokuapp.com/find-pantry"
+        "url": "https://accfb-foodnow-stage.herokuapp.com/find-pantry"
       }
     },
     {
@@ -1139,7 +1139,7 @@
             "key": "city"
           }
         ],
-        "url": "https://accfb-foodnow.herokuapp.com/validate-city"
+        "url": "https://accfb-foodnow-stage.herokuapp.com/validate-city"
       }
     },
     {
@@ -1257,7 +1257,7 @@
             "key": "has_children"
           }
         ],
-        "url": "https://accfb-foodnow.herokuapp.com/find-pantry"
+        "url": "https://accfb-foodnow-stage.herokuapp.com/find-pantry"
       }
     },
     {
@@ -1882,7 +1882,7 @@
             "key": "city"
           }
         ],
-        "url": "https://accfb-foodnow.herokuapp.com/validate-city"
+        "url": "https://accfb-foodnow-stage.herokuapp.com/validate-city"
       }
     },
     {
@@ -2081,7 +2081,7 @@
             "key": "has_children"
           }
         ],
-        "url": "https://accfb-foodnow.herokuapp.com/find-pantry"
+        "url": "https://accfb-foodnow-stage.herokuapp.com/find-pantry"
       }
     },
     {
@@ -2629,7 +2629,7 @@
             "key": "channel"
           }
         ],
-        "url": "https://accfb-foodnow.herokuapp.com/record-referral"
+        "url": "https://accfb-foodnow-stage.herokuapp.com/record-referral"
       }
     },
     {
@@ -2670,7 +2670,7 @@
             "key": "channel"
           }
         ],
-        "url": "https://accfb-foodnow.herokuapp.com/record-referral"
+        "url": "https://accfb-foodnow-stage.herokuapp.com/record-referral"
       }
     },
     {
@@ -2711,7 +2711,7 @@
             "key": "channel"
           }
         ],
-        "url": "https://accfb-foodnow.herokuapp.com/record-referral"
+        "url": "https://accfb-foodnow-stage.herokuapp.com/record-referral"
       }
     },
     {
@@ -2797,7 +2797,7 @@
             "key": "city"
           }
         ],
-        "url": "https://accfb-foodnow.herokuapp.com/validate-city"
+        "url": "https://accfb-foodnow-stage.herokuapp.com/validate-city"
       }
     },
     {
@@ -2942,7 +2942,7 @@
             "key": "has_children"
           }
         ],
-        "url": "https://accfb-foodnow.herokuapp.com/find-pantry"
+        "url": "https://accfb-foodnow-stage.herokuapp.com/find-pantry"
       }
     },
     {
@@ -3148,7 +3148,7 @@
             "key": "channel"
           }
         ],
-        "url": "https://accfb-foodnow.herokuapp.com/record-referral"
+        "url": "https://accfb-foodnow-stage.herokuapp.com/record-referral"
       }
     },
     {

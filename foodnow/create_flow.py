@@ -9,6 +9,6 @@ if __name__ == '__main__':
     client = Client(account_sid, auth_token)
     file = open('studio/bot_flow.json')
     definition = file.read()
-    # prod_definition = definition.replace('accfb-foodnow-stage', 'accfb-foodnow')
-    flowdef = json.loads(definition)
+    prod_definition = definition.replace('accfb-foodnow-stage', 'accfb-foodnow')
+    flowdef = json.loads(prod_definition)
     client.studio.flows.create(commit_message='Import FoodNow flow', friendly_name='foodnow_bot', status='published', definition=flowdef)

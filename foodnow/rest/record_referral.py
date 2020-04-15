@@ -32,10 +32,10 @@ class RecordReferralResource(Resource):
                 date = datetime.datetime.strptime(date, '%Y-%m-%d')
             else:
                 date = datetime.datetime.now(tz=pytz.timezone("America/Los_Angeles")).date()
-            site_id = request.form.get('site_id', None)
-            if site_id is not None:
+            agency_number = request.form.get('agency_number', None)
+            if agency_number is not None:
                 distribution_site_dao = PostgresDistributionSiteDao(pgclient)
-                site = distribution_site_dao.get_site(site_id)
+                site = distribution_site_dao.get_site(agency_number)
                 if site is not None:
                     referral = Referral(site, date, channel, language, count)
                     referral_dao = PostgresReferralDao(pgclient)

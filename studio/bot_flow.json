@@ -854,7 +854,7 @@
           },
           {
             "index": "7",
-            "value": "{% assign idx = flow.variables.pantry_index | plus: 0 %}{{ widgets.http_find_pantry.parsed.sites[idx].site_id}}",
+            "value": "{% assign idx = flow.variables.pantry_index | plus: 0 %}{{ widgets.http_find_pantry.parsed.sites[idx].agency_number}}",
             "key": "pantry_id"
           },
           {
@@ -1403,7 +1403,7 @@
           },
           {
             "index": "6",
-            "value": "{% assign idx = flow.variables.pantry_index | plus: 0 %}{{ widgets.http_find_pantries_sms_english.parsed.sites[idx].site_id}}",
+            "value": "{% assign idx = flow.variables.pantry_index | plus: 0 %}{{ widgets.http_find_pantries_sms_english.parsed.sites[idx].agency_number}}",
             "key": "pantry_id"
           },
           {
@@ -2237,7 +2237,7 @@
           },
           {
             "index": "7",
-            "value": "{% assign idx = flow.variables.pantry_index | plus: 0 %}{{ widgets.http_find_pantry_spanish.parsed.sites[idx].site_id}}",
+            "value": "{% assign idx = flow.variables.pantry_index | plus: 0 %}{{ widgets.http_find_pantry_spanish.parsed.sites[idx].agency_number}}",
             "key": "pantry_id"
           },
           {
@@ -2614,7 +2614,7 @@
         "parameters": [
           {
             "value": "{{flow.variables.pantry_id}}",
-            "key": "site_id"
+            "key": "agency_number"
           },
           {
             "value": "1",
@@ -2655,7 +2655,7 @@
         "parameters": [
           {
             "value": "{{flow.variables.pantry_id}}",
-            "key": "site_id"
+            "key": "agency_number"
           },
           {
             "value": "1",
@@ -2696,7 +2696,7 @@
         "parameters": [
           {
             "value": "{{flow.variables.pantry_id}}",
-            "key": "site_id"
+            "key": "agency_number"
           },
           {
             "value": "1",
@@ -3088,7 +3088,7 @@
           },
           {
             "index": "6",
-            "value": "{% assign idx = flow.variables.pantry_index | plus: 0 %}{{ widgets.http_find_pantries_sms_spanish.parsed.sites[idx].site_id}}",
+            "value": "{% assign idx = flow.variables.pantry_index | plus: 0 %}{{ widgets.http_find_pantries_sms_spanish.parsed.sites[idx].agency_number}}",
             "key": "pantry_id"
           },
           {
@@ -3133,7 +3133,7 @@
         "parameters": [
           {
             "value": "{{flow.variables.pantry_id}}",
-            "key": "site_id"
+            "key": "agency_number"
           },
           {
             "value": "1",

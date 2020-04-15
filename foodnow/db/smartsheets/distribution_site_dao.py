@@ -28,7 +28,6 @@ class SmartsheetDistributionSiteDao(object):
                 data[column_name] = value
 
             # the raw values of the id and zip code are unfortunately read as float
-            data['ID'] = int(data['ID'])
             data['Zipcode'] = int(data['Zipcode'])
             data['RequiresChildren'] = True if data['RequiresChildren'] is not None else False
             data['IsDrivethru'] = True if data['IsDrivethru'] is not None else False

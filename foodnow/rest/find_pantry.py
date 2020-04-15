@@ -28,7 +28,7 @@ class FindPantryResource(Resource):
         if day_of_week not in site.schedules.keys():
             raise Exception('Site is not open on this day')
         return {
-            'site_id': site.id,
+            'agency_number': site.agency_number,
             'distance': readable_distance(site.distance, language),
             'site_name': site.name,
             'site_address': site.address,

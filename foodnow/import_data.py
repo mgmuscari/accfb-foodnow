@@ -39,7 +39,7 @@ if __name__ == '__main__':
     try:
         for smartsheet_site in sites:
             log.debug("Loaded site from smartsheet: {}".format(str(smartsheet_site)))
-            postgres_site = postgres_site_dao.get_site(smartsheet_site.id)
+            postgres_site = postgres_site_dao.get_site(smartsheet_site.agency_number)
             address_changed = False
             if postgres_site is not None:
                 log.debug("Loaded site from postgres: {}".format(str(postgres_site)))

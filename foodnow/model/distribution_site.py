@@ -4,7 +4,7 @@ from datetime import datetime, date
 class DistributionSite(object):
 
     def __init__(self, **kwargs):
-        self.id = kwargs.get("ID")
+        self.agency_number = kwargs.get("AgencyNo")
         self.name = kwargs.get("Name")
         self.address = kwargs.get("Address")
         self.city = kwargs.get("City")
@@ -32,5 +32,5 @@ class DistributionSite(object):
         self.longitude = longitude
 
     def __repr__(self):
-        return "{}: {}, {}, {}, {}. Open: {}".format(self.id, self.name, self.address, self.city, self.zip, self.schedules)
+        return "{}: {}, {}, {}, {}. Open: {}".format(self.agency_number, self.name, self.address, self.city, self.zip, self.schedules)
 

@@ -32,7 +32,7 @@ class PostgresReferralDao(object):
                 distribution_site_dao = PostgresDistributionSiteDao(self.pg_client)
                 site = distribution_site_dao.get_site(result.get('agency_number'))
                 if site is not None:
-                    return Referral(site, row.get('referral_date'), row.get('referrals'))
+                    return Referral(site, result.get('referral_date'), result.get('channel'), result.get('language'), result.get('referrals'))
         return None
 
     def get_referrals_on_date(self, date):
@@ -47,8 +47,6 @@ class PostgresReferralDao(object):
                 result = dict(zip(columns, row))
                 site = distribution_site_dao.get_site(result.get('agency_number'))
                 if site is not None:
-                    referrals.append(Referral(site, row.get('referral_date'), row.get('referrals')))
+                    referrals.append(Referral(site, result.get('referral_date'), result.get('channel'), result.get('language'), result.get('referrals')))
         return referrals
-
-
 

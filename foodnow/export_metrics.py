@@ -29,7 +29,7 @@ if __name__ == '__main__':
 
     postgres_referrals_dao = PostgresReferralDao(postgres)
 
-    today = datetime.datetime.now(tz=pytz.timezone("America/Los_Angeles")).date()
+    today = datetime.datetime.now(tz=pytz.timezone("America/Los_Angeles")).date() + datetime.timedelta(days=1)
     referrals = postgres_referrals_dao.get_referrals_on_date(today)
 
     for referral in referrals:

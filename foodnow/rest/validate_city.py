@@ -1,23 +1,37 @@
 from flask_restful import Resource
-from flask import request, app, make_response
+from flask import request, make_response
 from flask import jsonify
 from foodnow.db import get_postgres_client
 import logging
+from foodnow import nlp_en, nlp_es
 
 class ValidCityResource(Resource):
 
     def get(self):
         try:
             city = request.args.get("city")
+            language = request.args.get("language")
+
             pgclient = get_postgres_client()
             try:
+                # fuzzy search for a city
                 found_city = ValidCityResource.valid_city(pgclient, city)
                 if found_city is not None:
                     return jsonify({"valid_city": True, "city": found_city})
                 else:
-                    return jsonify({"valid_city": False, "city": city})
+                    # let's try again using NLP to extract the city
+                    if language == "en_US":
+                        parsed = nlp_en(city)
+                    else:
+                        parsed = nlp_es(city)
+                    entities = parsed.ents
+                    for entity in entities:
+                        city = ValidCityResource.valid_city(pgclient, entity.string)
+                        if city is not None:
+                            return jsonify({"valid_city": True, "city": city})
             finally:
                 pgclient.close()
+            return jsonify({"valid_city": False, "city": city})
 
         except Exception as e:
             logging.exception("An error occurred validating the user's city")
@@ -25,7 +39,7 @@ class ValidCityResource(Resource):
 
     @staticmethod
     def valid_city(pgclient, city):
-        city = city.strip()
+        city = city.split(",")[0].strip()
         select = 'select name from accfb.cities where levenshtein(lower(%(city)s), lower(name)) < 3 order by levenshtein(lower(%(city)s), lower(name)) asc'
         with pgclient.cursor() as cursor:
             cursor.execute(select, {'city': city})

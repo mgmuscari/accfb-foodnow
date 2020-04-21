@@ -17,10 +17,11 @@ def truthy_string(string):
 
 def readable_distance(meters, language):
     total_distance = (meters / 1000.0)
-    unit = 'kilometro'
+    total_distance = total_distance * 0.621371
     if language == 'en_US':
-        total_distance = total_distance * 0.621371
         unit = 'mile'
+    else:
+        unit = 'milla'
     unit_distance = math.floor(total_distance)
     unit_fraction = total_distance - unit_distance
     fraction = Fraction(int(round(unit_fraction * 4)), 4)
@@ -43,7 +44,7 @@ def readable_distance(meters, language):
             if language == 'en_US':
                 return '1 quarter of a mile'
             else:
-                return '1 cuarto de kilometro'
+                return '1 cuarto de milla'
     if unit_distance > 1:
         unit = unit + 's'
     if len(fraction_text) > 0:

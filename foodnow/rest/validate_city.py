@@ -26,7 +26,8 @@ class ValidCityResource(Resource):
                         parsed = nlp_es(city)
                     entities = parsed.ents
                     for entity in entities:
-                        city = ValidCityResource.valid_city(pgclient, entity.string)
+                        stripped = entity.string.lower().replace("california","").strip()
+                        city = ValidCityResource.valid_city(pgclient, stripped)
                         if city is not None:
                             return jsonify({"valid_city": True, "city": city})
             finally:
